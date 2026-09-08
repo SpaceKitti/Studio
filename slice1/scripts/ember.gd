@@ -23,7 +23,8 @@ func adopt(player: Node3D) -> void:
 	adopted = true
 	_follow_target = player
 	# Move onto balcony in front of door
-	global_position = Vector3(1.2, 0.2, 0.6)
+	# Appear on neighbor balcony in front of neighbor glass
+	global_position = Vector3(10.3, 0.2, 0.6)
 	visible = true
 
 func _physics_process(delta: float) -> void:

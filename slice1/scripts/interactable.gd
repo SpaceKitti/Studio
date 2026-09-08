@@ -34,6 +34,8 @@ func interact(actor: Node) -> String:
 	match interact_id:
 		"door":
 			return _open_door(actor)
+		"home_glass":
+			return "Your apartment is blocked for now — M1 interior."
 		"desk":
 			return _use_desk()
 		"fire_escape":
@@ -51,7 +53,7 @@ func _open_door(actor: Node) -> String:
 	if level and level.has_method("on_door_opened"):
 		level.call("on_door_opened", actor)
 	GameState.mark_cat()
-	return "Sliding glass opens. Ember bolts onto the balcony. Adopted."
+	return "Neighbor sliding glass opens. Ember bolts onto their balcony. Adopted."
 
 func _use_desk() -> String:
 	var hud := get_tree().get_first_node_in_group("hud")

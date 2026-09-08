@@ -2,14 +2,16 @@
 
 Source of truth: [`GAME_DESIGN.md`](GAME_DESIGN.md). This document records **what ships** and **how to run**.
 
+> **Layout note (Akitti):** Ember is freed at **neighbor** sliding glass. GAME_DESIGN glass-on-home was wrong vs Akitti — cat belongs to the neighbor.
+
 ## What ships
 
 Playable Godot 4.x **3D** slice under `slice1/`:
 
 | Space | Contents |
 |-------|----------|
-| **Home balcony** | Outdoor engineering table (desk present, craft button greyed), 3 herb pots, 1 empty plantable pot, sliding glass door (cat paws → **E** opens → Ember adopted), interior = blocked black volume |
-| **Neighbor balcony** | Potato + tomato mid-growth pots, planter box / plastic drawer / rusted toolbox (grocery starter loot), note + empty bowl |
+| **Home balcony** | Outdoor desk stub (craft locked; moves inside M1), 3 herb pots, 1 empty plantable pot, **blocked** own sliding glass (no Ember), interior = black volume |
+| **Neighbor balcony** | Potato + tomato mid-growth pots, 3 containers, note + empty bowl, neighbor sliding glass with **Ember** behind it (**E** opens → adopt HERE) |
 | **Traversal** | Jumpable gap (~2 m). Fire escape visible, interact says locked. Skybox/street backdrop only |
 | **Systems** | Look-at + **E**; Item resources with `weight_kg`; backpack **25 kg**; `hands_occupied`; garden plant/water/harvest; `solar_rig` recipe data with craft locked; Ember follows loosely; **G** debug gift drop |
 | **Art** | Neon dusk / golden-hour key light + cyan/magenta neon trim + SSAO; FOV **65**; stylized cyberpunk materials (not grey noon) |
@@ -19,7 +21,7 @@ Playable Godot 4.x **3D** slice under `slice1/`:
 Player can:
 
 1. Walk **both** balconies (jump the gap)
-2. Free / adopt the cat (open home sliding glass)
+2. Free / adopt the cat (open **neighbor** sliding glass)
 3. Pick up **3** items (search containers / harvest)
 4. **Plant → water → harvest** path for 1 crop (empty home pot + seed from planter; or water/harvest neighbor after planting path on home)
 5. Open **inventory** (**Tab** / **I**) showing **kg**
@@ -55,8 +57,8 @@ Or: Godot → Open `slice1/project.godot` → **F5**.
 
 ### Suggested M0 play path
 
-1. On home balcony: **E** glass door → adopt Ember.
-2. Jump east gap to neighbor balcony.
+1. On home balcony: herbs / desk / empty pot; own glass is blocked (no Ember).
+2. Jump east gap to neighbor balcony; **E** neighbor glass → adopt Ember.
 3. Search **planter box** (seeds), **plastic drawer** (water/tuna/flour), **rusted toolbox** (salt/water) — get ≥3 pickups.
 4. Jump back; plant seed in empty home pot → water with bottle → harvest.
 5. **Tab** inventory — confirm kg readout.

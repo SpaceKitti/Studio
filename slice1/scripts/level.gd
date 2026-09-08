@@ -137,18 +137,6 @@ func _build_home_balcony() -> void:
 	_box(bal, Vector3(0.1, 0.85, 1.8), Vector3(4.15, 0.42, -2.1), rail, "RailE_S")
 	_box(bal, Vector3(0.1, 0.85, 1.8), Vector3(4.15, 0.42, 2.1), rail, "RailE_N")
 
-	# Orientation markers
-	var home_lbl := Label3D.new()
-	home_lbl.name = "HomeLabel"
-	home_lbl.text = "HOME"
-	home_lbl.font_size = 64
-	home_lbl.pixel_size = 0.012
-	home_lbl.position = Vector3(2.1, 0.15, 0.0)
-	home_lbl.modulate = Color(0.4, 1.0, 0.85)
-	home_lbl.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	bal.add_child(home_lbl)
-
-
 	# Neon trim on rail
 	var trim := CSGBox3D.new()
 	trim.name = "RailNeon"
@@ -158,11 +146,11 @@ func _build_home_balcony() -> void:
 	trim.use_collision = false
 	bal.add_child(trim)
 
-	# Sliding glass door on west (to blocked interior) — cat paws behind
+	# Sliding glass to OWN apartment (blocked black volume) — no Ember here
 	var glass_mat := _mat(Color(0.35, 0.55, 0.7, 0.35), 0.1)
 	glass_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	var glass := CSGBox3D.new()
-	glass.name = "SlidingGlass"
+	glass.name = "HomeSlidingGlass"
 	glass.size = Vector3(0.06, 2.3, 1.8)
 	glass.position = Vector3(0.05, 1.15, 0.0)
 	glass.material = glass_mat
@@ -172,22 +160,22 @@ func _build_home_balcony() -> void:
 	_box(bal, Vector3(0.12, 2.5, 0.12), Vector3(0.05, 1.25, 0.95), rust, "DoorFrameR")
 	_box(bal, Vector3(0.12, 0.12, 2.0), Vector3(0.05, 2.35, 0.0), rust, "DoorFrameTop")
 
-	var door := Area3D.new()
-	door.name = "DoorInteract"
-	# On balcony side of glass so proximity + ray both catch it easily.
-	door.position = Vector3(1.0, 1.0, 0.0)
-	door.set_script(load("res://scripts/interactable.gd"))
-	door.set("prompt_text", "[E] Open sliding glass (cat pawing)")
-	door.set("interact_id", "door")
-	door.set("one_shot", true)
-	bal.add_child(door)
-	door.add_to_group("interactable")
-	door.collision_layer = 4
-	var dcol := CollisionShape3D.new()
-	var dshape := BoxShape3D.new()
-	dshape.size = Vector3(2.0, 2.4, 2.4)
-	dcol.shape = dshape
-	door.add_child(dcol)
+	# Blocked own-apartment entry (future M1). Cat door is on neighbor glass only.
+	var home_door := Area3D.new()
+	home_door.name = "HomeGlassInteract"
+	home_door.position = Vector3(1.0, 1.0, 0.0)
+	home_door.set_script(load("res://scripts/interactable.gd"))
+	home_door.set("prompt_text", "[E] Own apartment (blocked — M1)")
+	home_door.set("interact_id", "home_glass")
+	home_door.set("one_shot", false)
+	bal.add_child(home_door)
+	home_door.add_to_group("interactable")
+	home_door.collision_layer = 4
+	var hdcol := CollisionShape3D.new()
+	var hdshape := BoxShape3D.new()
+	hdshape.size = Vector3(2.0, 2.4, 2.4)
+	hdcol.shape = hdshape
+	home_door.add_child(hdcol)
 
 	# Outdoor engineering table (desk) — craft disabled
 	var desk_root := Node3D.new()
@@ -260,42 +248,6 @@ func _build_home_balcony() -> void:
 	_box(bal, Vector3(1.2, 0.14, 0.12), Vector3(1.9, 0.05, -2.35), Color(0.5, 0.4, 0.35), "PotSafetyLip")
 
 
-	# Ember starts behind glass (inside black volume side, visible through glass)
-	var ember := CharacterBody3D.new()
-	ember.name = "Ember"
-	ember.position = Vector3(-0.6, 0.15, 0.15)
-	ember.collision_layer = 0
-	ember.collision_mask = 1
-	ember.set_script(load("res://scripts/ember.gd"))
-	ember.add_to_group("ember")
-	bal.add_child(ember)
-	var ebody := MeshInstance3D.new()
-	var es := SphereMesh.new()
-	es.radius = 0.2
-	es.height = 0.36
-	ebody.mesh = es
-	ebody.material_override = _mat(Color(0.9, 0.7, 0.4), 0.9)
-	ebody.scale = Vector3(1.1, 0.85, 1.35)
-	ember.add_child(ebody)
-	var ehead := MeshInstance3D.new()
-	var hs := SphereMesh.new()
-	hs.radius = 0.13
-	hs.height = 0.26
-	ehead.mesh = hs
-	ehead.material_override = _mat(Color(0.9, 0.7, 0.4), 0.9)
-	ehead.position = Vector3(0.05, 0.16, 0.18)
-	ember.add_child(ehead)
-	var ecol := CollisionShape3D.new()
-	var ecaps := CapsuleShape3D.new()
-	ecaps.radius = 0.18
-	ecaps.height = 0.4
-	ecol.shape = ecaps
-	ecol.position = Vector3(0, 0.2, 0)
-	ember.add_child(ecol)
-
-	# Paw decal cue — small mesh on glass
-	_box(bal, Vector3(0.08, 0.08, 0.08), Vector3(0.12, 0.7, 0.25), Color(0.85, 0.65, 0.4), "PawMark")
-
 func _build_neighbor_balcony() -> void:
 	var nb := Node3D.new()
 	nb.name = "NeighborBalcony"
@@ -310,19 +262,77 @@ func _build_neighbor_balcony() -> void:
 	_box(nb, Vector3(0.1, 0.85, 1.8), Vector3(6.45, 0.42, -2.1), rail, "RailW_S")
 	_box(nb, Vector3(0.1, 0.85, 1.8), Vector3(6.45, 0.42, 2.1), rail, "RailW_N")
 	_box(nb, Vector3(0.1, 0.85, 6.0), Vector3(10.95, 0.42, 0.0), rail, "RailE")
-	var nbr_lbl := Label3D.new()
-	nbr_lbl.name = "NeighborLabel"
-	nbr_lbl.text = "NEIGHBOR"
-	nbr_lbl.font_size = 64
-	nbr_lbl.pixel_size = 0.012
-	nbr_lbl.position = Vector3(8.7, 0.15, 0.0)
-	nbr_lbl.modulate = Color(1.0, 0.55, 0.75)
-	nbr_lbl.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	nb.add_child(nbr_lbl)
-
-
 	# Neighbor building face
 	_box(nb, Vector3(0.3, 3.2, 6.2), Vector3(11.2, 1.5, 0.0), Color(0.22, 0.18, 0.24), "NeighborWall")
+
+	# Neighbor sliding glass — Ember (neighbor's cat) behind it; adopt HERE
+	var nglass_mat := _mat(Color(0.35, 0.55, 0.7, 0.35), 0.1)
+	nglass_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	var nglass := CSGBox3D.new()
+	nglass.name = "NeighborSlidingGlass"
+	nglass.size = Vector3(0.06, 2.3, 1.8)
+	nglass.position = Vector3(11.05, 1.15, 0.0)
+	nglass.material = nglass_mat
+	nglass.use_collision = true
+	nb.add_child(nglass)
+	var nrust := Color(0.55, 0.28, 0.18)
+	_box(nb, Vector3(0.12, 2.5, 0.12), Vector3(11.05, 1.25, -0.95), nrust, "NDoorFrameL")
+	_box(nb, Vector3(0.12, 2.5, 0.12), Vector3(11.05, 1.25, 0.95), nrust, "NDoorFrameR")
+	_box(nb, Vector3(0.12, 0.12, 2.0), Vector3(11.05, 2.35, 0.0), nrust, "NDoorFrameTop")
+
+	var door := Area3D.new()
+	door.name = "DoorInteract"
+	# Balcony side of neighbor glass — cat door only
+	door.position = Vector3(10.2, 1.0, 0.0)
+	door.set_script(load("res://scripts/interactable.gd"))
+	door.set("prompt_text", "[E] Open sliding glass (cat pawing)")
+	door.set("interact_id", "door")
+	door.set("one_shot", true)
+	nb.add_child(door)
+	door.add_to_group("interactable")
+	door.collision_layer = 4
+	var dcol := CollisionShape3D.new()
+	var dshape := BoxShape3D.new()
+	dshape.size = Vector3(2.0, 2.4, 2.4)
+	dcol.shape = dshape
+	door.add_child(dcol)
+
+	# Ember behind neighbor glass (inside neighbor apartment)
+	var ember := CharacterBody3D.new()
+	ember.name = "Ember"
+	ember.position = Vector3(11.45, 0.15, 0.15)
+	ember.collision_layer = 0
+	ember.collision_mask = 1
+	ember.set_script(load("res://scripts/ember.gd"))
+	ember.add_to_group("ember")
+	nb.add_child(ember)
+	var ebody := MeshInstance3D.new()
+	var es := SphereMesh.new()
+	es.radius = 0.2
+	es.height = 0.36
+	ebody.mesh = es
+	ebody.material_override = _mat(Color(0.9, 0.7, 0.4), 0.9)
+	ebody.scale = Vector3(1.1, 0.85, 1.35)
+	ember.add_child(ebody)
+	var ehead := MeshInstance3D.new()
+	var hs := SphereMesh.new()
+	hs.radius = 0.13
+	hs.height = 0.26
+	ehead.mesh = hs
+	ehead.material_override = _mat(Color(0.9, 0.7, 0.4), 0.9)
+	ehead.position = Vector3(-0.05, 0.16, 0.18)
+	ember.add_child(ehead)
+	var ecol := CollisionShape3D.new()
+	var ecaps := CapsuleShape3D.new()
+	ecaps.radius = 0.18
+	ecaps.height = 0.4
+	ecol.shape = ecaps
+	ecol.position = Vector3(0, 0.2, 0)
+	ember.add_child(ecol)
+
+	# Paw decal cue on neighbor glass
+	_box(nb, Vector3(0.08, 0.08, 0.08), Vector3(10.98, 0.7, 0.25), Color(0.85, 0.65, 0.4), "PawMark")
+
 
 	# Potato + tomato mid-growth pots
 	var soil := Color(0.28, 0.2, 0.14)
