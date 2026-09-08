@@ -96,7 +96,7 @@ Fire escape becomes usable as **map/node** travel (hardware, groceries). Solar k
 - Expected timeline vs real timeline is the wound: “couple of months” late.
 - **Vibe: trades / hands-on** (Akitti 2026-09-08). Complements the Intern’s kits — bridges, rails, fire-escape muscle, physical make-do. Not a second tech.
 - Reunion friction: they want to *build*, you want to *wire*.
-- Name / face / exact job still speculative.
+- **Name: Rex** (locked for now, 2026-09-08). Gender-swappable later. Face / exact job still speculative.
 - First appearance must not dump combat or open-world sprawl; vertical home first.
 
 ---
