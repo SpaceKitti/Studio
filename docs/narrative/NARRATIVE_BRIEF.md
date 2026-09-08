@@ -1,6 +1,8 @@
 # Studio — Narrative Brief (v0)
 
 **Owner:** Quill (storyline) · mood sync with Prism · systems owned by Forge  
+
+**Also see:** `docs/narrative/STORYLINE.md` (arcs, partner return speculative, original blueprint kept).
 **Canon scope:** `docs/GAME_DESIGN.md` (working title **Fire Escape**) overrides this file on space/systems for Milestone 0.  
 **Status:** Parked until Akitti greenlights M0 build. Godot 4 3D only.
 
