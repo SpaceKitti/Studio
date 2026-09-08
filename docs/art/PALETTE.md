@@ -1,13 +1,18 @@
 # Fire Escape — palette notes (Akitti → Prism, 2026-09-08)
 
-Source: Akitti’s dusk + neon sheets (attached). Canon for M0 lighting/materials until revised.
-Repo mirror: `docs/art/PALETTE.md` + `docs/art/palette-*.jpg` + `slice1/scripts/palette.gd` (or shared).
+Source: Akitti’s dusk + neon sheets; Prism rain-night + UI/kg sheets. Canon for lighting/materials/UI until revised.
+Sheets: `palette-core-atmosphere.jpg`, `palette-neon-signage.jpg`, `palette-rain-night.jpg`, `palette-ui-inventory.jpg`
+Godot: `docs/art/palette.gd` and `slice1/scripts/palette.gd` (`FireEscapePalette`)
 
 ## Intent
 Balcony-survival cyberpunk: dusk city, dirty plaster, sick neons — **not** full black-and-magenta cliché.
-Walls stay Wet Asphalt / Stucco. Neon is **trim only**. One hue family per surface (magenta *or* cyan at full strength, not both).
+Walls stay Wet Asphalt / Stucco (or rain-night equivalents). Neon is **trim only**. One hue family per surface (magenta *or* cyan at full strength, not both).
 
-## Core atmosphere (12)
+**Night / home-base:** rain-night set is for stuck-indoors / balcony-at-night beats. Keep a **Lamp Pocket** warm island so home still feels yours.
+
+---
+
+## Core atmosphere (dusk / M0 day-dusk)
 | Role | Name | Hex | Use |
 |------|------|-----|-----|
 | Night void | Night Slate | `#0B1020` | Sky far below, unlit interiors |
@@ -23,7 +28,15 @@ Walls stay Wet Asphalt / Stucco. Neon is **trim only**. One hue family per surfa
 | Rust, old blood | Dried Blood Rust | `#7A2E2E` | Rust, weathered stains |
 | Cat, paper, skin | Cat Cream | `#F3E6D0` | Ember, paper, soft highlights |
 
-## Primary neon accents (12) — signs / UI / emissives, not walls
+### M0 dusk lighting
+1. **Key:** Sick Amber from the side (sun)
+2. **Fill:** Wet Asphalt — dark but readable
+3. **Rim:** Cyan Rig on metal rail *or* Magenta Sign on distant billboard — not both at full strength
+4. **Plants:** Toxic Lime on new growth; older pots = Oxidized Teal
+
+---
+
+## Primary neon accents (signs / UI / emissives, not walls)
 | Role | Name | Hex |
 |------|------|-----|
 | Main sign | Hot Magenta | `#FF1090` |
@@ -39,34 +52,69 @@ Walls stay Wet Asphalt / Stucco. Neon is **trim only**. One hue family per surfa
 | Danger / infected later | Blood Neon | `#FF003C` |
 | Tube core | White Hot | `#F8FBFF` |
 
-## M0 lighting recipe
-1. **Key:** Sick Amber from the side (sun)
-2. **Fill:** Wet Asphalt — dark but readable
-3. **Rim:** Cyan Rig on metal rail *or* Magenta Sign on distant billboard — not both at full strength
-4. **Plants:** Toxic Lime on new growth; older pots = Oxidized Teal
+**Emission cheat:** albedo ≈ 30% of hex, emission energy 3–8 on same hex. Tube = neon + thin White Hot core.
 
-## Emission cheat (Godot)
-Albedo ≈ 30% of hex, emission energy 3–8 on same hex → reads as a sign, not a flat sticker.
-Tube look = neon color + thin White Hot core.
+---
 
-## Pairing rules
-- Garden LEDs: Acid Lime
-- Battery charged: Cyan Shock
-- Battery dead: Blood Neon
-- Inventory/kg UI later: Warning Amber + Ice Blue + White Hot (UI sheet TBD if needed)
+## Rain night (home base / stuck indoors)
+Colder, wetter, more cyan — for night cycles and “we’re stuck here till morning.”
 
-## Optional next sheets (Akitti offered)
-- Rain night (colder, more cyan)
-- UI-only inventory/kg bars
+| Role | Name | Hex | Use |
+|------|------|-----|-----|
+| Night void | Night Void | `#050810` | Sky, deep unlit |
+| Building mass | Flooded Asphalt | `#121820` | Wet walls in shadow |
+| Dirty city | Wet Concrete | `#5A6570` | Rails, slabs in rain |
+| Lived-in cold | Cold Stucco | `#9AA3A8` | Rain-hit plaster |
+| Soft fill | Moon Fill | `#7A9BB0` | Overcast / moon bounce |
+| Key wet neon | Cyan Soak | `#1AC8D4` | Rain reflections, primary rim |
+| Window | Window Glow | `#4DE8FF` | Lit windows across the street |
+| Distant sign | Magenta Leak | `#C2186A` | Far signage, keep dim |
+| Standing water / moss | Pool Green | `#2D5A4A` | Puddle sheen, damp plants |
+| Decay | Mold Teal | `#0F3D3A` | Corners, planter undersides |
+| Rust wet | Wet Rust | `#5A2428` | Dark wet rust |
+| Sanctuary | Lamp Pocket | `#E8D4B8` | Desk lamp / home warm island |
 
-## Prism expansions (locked with Akitti’s set)
+### Rain-night lighting
+1. **Key:** Cyan Soak (soft) + optional Window Glow across the gap
+2. **Fill:** Flooded Asphalt / Moon Fill — keep readable, not black crush
+3. **Warm island:** Lamp Pocket at outdoor desk / later interior — home still yours
+4. **Rim:** Magenta Leak only as distant bleed, never competing with Cyan Soak
+5. Ember: Cat Cream still, or slightly cooler — never lose warmth/agency
+
+---
+
+## UI / kg inventory
+Handheld / notebook HUD — daylight-readable and night-readable.
+
+| Role | Name | Hex | Use |
+|------|------|-----|-----|
+| Backdrop | Panel Void | `#0E1420` | Modal / inventory backdrop |
+| Panel | Panel Face | `#1A2233` | Panel body |
+| Border | Panel Edge | `#2A3548` | Edges, dividers |
+| Text | Text Primary | `#E8EEF5` | Labels, kg numbers |
+| Secondary | Text Muted | `#8A96A8` | Hints, tags |
+| Weight OK | Kg OK | `#39FF14` | Under cap |
+| Weight warn | Kg Warn | `#FFD100` | Near 25 kg |
+| Weight fail | Kg Over | `#FF003C` | Reject / over |
+| Hands occupied | Hands Busy | `#C45C6A` | Hands-busy state |
+| Empty slot | Slot Empty | `#243040` | Empty bag slots |
+| Focus | Focus Cyan | `#00F5FF` | Selected / hover |
+| Highlight core | Tube Core | `#F8FBFF` | Cursor / active pip |
+
+### UI rules
+- Kg bar: OK → Warn → Over using those three only
+- Don’t use Blood Neon for everyday UI until infected milestone
+- Focus Cyan for selection; Hands Busy for blocked actions
+
+---
+
+## Prism expansions (props)
 | Role | Name | Hex | Why |
 |------|------|-----|-----|
 | Herb leaf (non-neon) | Herb Sap | `#4A7A3C` | Basil/mint without Toxic Lime overload |
 | Soil | Potting Soil | `#3B2A1E` | Planter dirt vs asphalt black |
 | Glass cool | Balcony Glass | `#A8C4D4` | Sliding door daytime read |
-| Hands-busy UI | Occupied Rose | `#C45C6A` | Soft “hands full” state, not Blood Neon yet |
+| Hands-busy soft | Occupied Rose | `#C45C6A` | Same as Hands Busy |
 
 ## Aligns with
-`docs/GAME_DESIGN.md` art direction (golden-hour / neon dusk, not grey noon).
-Older `ART_MOOD_BRIEF` / `SLICE1_ASSET_BRIEF` daylight-first notes: **superseded for M0 lighting** by this palette + GAME_DESIGN; keep Ember = Cat Cream warmth/agency.
+`docs/GAME_DESIGN.md` art direction. Older ART_MOOD_BRIEF daylight-first notes: **M0 dusk + this palette win**; Ember = Cat Cream warmth/agency.
