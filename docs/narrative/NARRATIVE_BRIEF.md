@@ -36,10 +36,11 @@ Start **tiny**. No street open-world yet.
 4. Neighbor’s **glass door**: cat paws on it → player opens → **free the cat**; stay on balconies for now.
 
 ### Cat (LOCKED character beat)
-- Neighbor fled; left the cat.
-- Player adopts it.
-- Cat uses the **fire escape** (climb up/down).
-- Random beat: cat brings a **pigeon** a couple times a week (loot / food / story beat — systems TBD by Forge).
+- **Name: Ember** (locked 2026-09-08 — team pick; Akitti deferred to Studio bots).
+- Neighbor fled; left Ember.
+- Player adopts Ember.
+- Ember uses the **fire escape** (climb up/down).
+- Random beat: Ember brings a **pigeon** a couple times a week (loot / food / story beat — systems TBD by Forge).
 
 ### Neighbor garden (LOCKED set dressing)
 - Half-started balcony garden: **potatoes + tomatoes**.
@@ -103,7 +104,7 @@ Prism mood confirmed (`docs/art/ART_MOOD_BRIEF.md`). These beats are canon for t
 Soft panic in the tower: footsteps, doors, distant shouting. Crowds leave. The Intern **stays**. Quiet arrives. Mood: soft panic → quiet (not scream horror).
 
 ### H1 — The glass
-On / toward the neighbor balcony: a cat paws the glass door. Readable silhouette (Prism). Player opens → **frees and adopts** the cat. Neighbor interior stays off-limits. First warmth beat.
+On / toward the neighbor balcony: **Ember** paws the glass door. Readable silhouette (Prism). Player opens → **frees and adopts** Ember. Neighbor interior stays off-limits. First warmth beat.
 
 ### H2 — Two balconies
 Player balcony (herbs + engineering desk tools) + **one** adjacent balcony (half-done potato/tomato garden). Jump between them. Theme seed: *someone started this; you finish it.*
@@ -115,7 +116,7 @@ Fiction for week one: taps still work. Soft pressure to **fill everything** you 
 First craft fantasy at the engineering desk — Forge picks what actually ships (tiny). Narrative promise: intern fumbling toward competence, not expert montage.
 
 ### H5 — Fire-escape cat / pigeon
-Cat uses the fire escape. A few times a week it brings a **pigeon** (loot/food/story TBD by Forge). First living-world gift; cat has agency.
+Ember uses the fire escape. A few times a week it brings a **pigeon** (loot/food/story TBD by Forge). First living-world gift; cat has agency.
 
 ### H6 — Map, not street (stub)
 Leaving via fire escape uses a **map / node** stub for now (hardware, groceries later). Open-world roam is a later chapter — do not block Slice 0 on it.
@@ -131,4 +132,4 @@ Leaving via fire escape uses a **map / node** stub for now (hardware, groceries 
 
 ---
 
-*Last updated: 2026-09-08 — Quill. Mood synced with Prism. Speculative sections remain flagged.*
+*Last updated: 2026-09-08 — Quill. Mood synced with Prism. Cat name locked: Ember. Speculative sections remain flagged.*
