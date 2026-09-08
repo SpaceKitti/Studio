@@ -4,6 +4,7 @@ extends CharacterBody3D
 const SPEED := 4.6
 const JUMP_VELOCITY := 5.6
 const MOUSE_SENS := 0.0024
+const FALL_Y := -8.0
 
 @onready var camera: Camera3D = $Camera3D
 @onready var interact_ray: RayCast3D = $Camera3D/InteractRay
@@ -12,11 +13,13 @@ var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 var _pitch: float = 0.0
 var _nearby: Area3D = null
 var _hud: Node = null
+var _spawn_xform: Transform3D
 
 func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	camera.fov = 65.0
 	_hud = get_tree().get_first_node_in_group("hud")
+	_spawn_xform = global_transform
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
@@ -62,11 +65,19 @@ func _physics_process(delta: float) -> void:
 		velocity.z = move_toward(velocity.z, 0.0, SPEED)
 
 	move_and_slide()
+	if global_position.y < FALL_Y:
+		_respawn()
 	_track_zone()
 	_update_nearby()
 
 	if Input.is_action_just_pressed("interact"):
 		_try_interact()
+
+func _respawn() -> void:
+	global_transform = _spawn_xform
+	velocity = Vector3.ZERO
+	if _hud and _hud.has_method("toast"):
+		_hud.toast("Whoa — back on the balcony.")
 
 func _track_zone() -> void:
 	# Neighbor balcony roughly x > 6.2
