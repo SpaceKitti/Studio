@@ -19,6 +19,8 @@ func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	camera.fov = 65.0
 	_hud = get_tree().get_first_node_in_group("hud")
+	# Force face east (+X toward gap) regardless of scene basis typos.
+	look_at(global_position + Vector3(1, 0, 0), Vector3.UP)
 	_spawn_xform = global_transform
 	# Godot 4 RayCast3D defaults collide_with_areas=false; interactables are Area3D on layer 4.
 	interact_ray.enabled = true
