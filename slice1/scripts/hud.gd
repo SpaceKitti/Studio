@@ -48,6 +48,22 @@ func _ready() -> void:
 	_refresh_win()
 	_ensure_crosshair()
 	_ensure_bag_hint()
+	# Unmistakable build stamp — always visible top-right
+	var build_stamp := Label.new()
+	build_stamp.name = "BuildStamp"
+	build_stamp.text = "BUILD 8d7409f | press T for bag"
+	build_stamp.add_theme_font_size_override("font_size", 18)
+	build_stamp.add_theme_color_override("font_color", Color(1.0, 1.0, 0.2, 1.0))
+	build_stamp.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	build_stamp.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	build_stamp.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	build_stamp.offset_left = -420.0
+	build_stamp.offset_right = -12.0
+	build_stamp.offset_top = 8.0
+	build_stamp.offset_bottom = 36.0
+	build_stamp.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	build_stamp.z_index = 200
+	$Root.add_child(build_stamp)
 
 func _process(delta: float) -> void:
 	if _toast_timer > 0.0:
