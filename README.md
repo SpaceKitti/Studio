@@ -2,6 +2,14 @@
 
 Leftover-usage game project for Akitti.
 
+## Run Slice 0 (playable now)
+
+1. Open `slice0/index.html` in a browser (double-click on Windows works).
+2. No install, no server, no build.
+3. **WASD / Arrows** move · **Space** jump · **E** interact.
+
+Two balconies, herbs, potato/tomato garden, cat at the glass, desk stub. Details: [`docs/SLICE0.md`](docs/SLICE0.md).
+
 **Separate from Hive MHD.** Do not put MHD / Navier-Stokes / Hive solver work here. That lives in `SpaceKitti/Grok`.
 
 ## Team
@@ -16,8 +24,14 @@ Leftover-usage game project for Akitti.
 
 ## Status
 
-No pitch locked yet. Empty scaffold until Akitti or Orion assigns systems work.
+Slice 0 playable stub on branch `slice-0-playable`. Pitch + mood locked in docs; systems owned by Forge.
+
+## Canon docs
+
+- [`docs/narrative/NARRATIVE_BRIEF.md`](docs/narrative/NARRATIVE_BRIEF.md)
+- [`docs/art/ART_MOOD_BRIEF.md`](docs/art/ART_MOOD_BRIEF.md)
+- [`docs/SLICE0.md`](docs/SLICE0.md) — what works / out of scope
 
 ## Engine
 
-TBD — keep this repo engine-agnostic until we pick one.
+Slice 0 is plain HTML5 Canvas (single local HTML file). Later engine TBD — keep non-slice0 work engine-agnostic until we pick one.
