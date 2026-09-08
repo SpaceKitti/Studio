@@ -1,9 +1,9 @@
 ## Fire Escape palette — Akitti + Prism (2026-09-08)
-## Drop into Godot project; M0 lighting uses core atmosphere + one rim neon.
+## Drop into Godot project; pick dusk vs rain-night lighting sets.
 class_name FireEscapePalette
 extends Object
 
-# --- Core atmosphere ---
+# --- Core atmosphere (dusk / M0) ---
 const NIGHT_SLATE := Color("#0B1020")
 const WET_ASPHALT := Color("#1A1F2E")
 const CONCRETE_DUST := Color("#8A8490")
@@ -17,7 +17,7 @@ const OXIDIZED_TEAL := Color("#1F6F6A")
 const RUST := Color("#7A2E2E")
 const CAT_CREAM := Color("#F3E6D0")
 
-# --- Primary neon accents (signs / UI / emissives) ---
+# --- Primary neon accents ---
 const HOT_MAGENTA := Color("#FF1090")
 const HOT_PINK := Color("#FF4DD2")
 const ELECTRIC_VIOLET := Color("#B026FF")
@@ -30,6 +30,34 @@ const WARNING_AMBER := Color("#FFD100")
 const MOLTEN_ORANGE := Color("#FF5A00")
 const BLOOD_NEON := Color("#FF003C")
 const WHITE_HOT := Color("#F8FBFF")
+
+# --- Rain night ---
+const NIGHT_VOID := Color("#050810")
+const FLOODED_ASPHALT := Color("#121820")
+const WET_CONCRETE := Color("#5A6570")
+const COLD_STUCCO := Color("#9AA3A8")
+const MOON_FILL := Color("#7A9BB0")
+const CYAN_SOAK := Color("#1AC8D4")
+const WINDOW_GLOW := Color("#4DE8FF")
+const MAGENTA_LEAK := Color("#C2186A")
+const POOL_GREEN := Color("#2D5A4A")
+const MOLD_TEAL := Color("#0F3D3A")
+const WET_RUST := Color("#5A2428")
+const LAMP_POCKET := Color("#E8D4B8")
+
+# --- UI / kg inventory ---
+const PANEL_VOID := Color("#0E1420")
+const PANEL_FACE := Color("#1A2233")
+const PANEL_EDGE := Color("#2A3548")
+const TEXT_PRIMARY := Color("#E8EEF5")
+const TEXT_MUTED := Color("#8A96A8")
+const KG_OK := Color("#39FF14")
+const KG_WARN := Color("#FFD100")
+const KG_OVER := Color("#FF003C")
+const HANDS_BUSY := Color("#C45C6A")
+const SLOT_EMPTY := Color("#243040")
+const FOCUS_CYAN := Color("#00F5FF")
+const TUBE_CORE := Color("#F8FBFF")
 
 # --- Prism expansions ---
 const HERB_SAP := Color("#4A7A3C")
