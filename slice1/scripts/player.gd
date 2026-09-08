@@ -19,7 +19,8 @@ var _inv_toggle_frame: int = -1
 func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	camera.fov = 65.0
-	_hud = get_tree().get_first_node_in_group("hud")
+	_resolve_hud()
+	call_deferred("_resolve_hud")
 	# Force face east (+X toward gap) regardless of scene basis typos.
 	look_at(global_position + Vector3(1, 0, 0), Vector3.UP)
 	_spawn_xform = global_transform
@@ -28,6 +29,14 @@ func _ready() -> void:
 	interact_ray.collide_with_areas = true
 	interact_ray.collide_with_bodies = false
 	interact_ray.collision_mask = 4
+
+func _resolve_hud() -> void:
+	_get_hud()
+
+func _get_hud() -> Node:
+	if _hud == null or not is_instance_valid(_hud):
+		_hud = get_tree().get_first_node_in_group("hud")
+	return _hud
 
 func _input(event: InputEvent) -> void:
 	_try_inventory_key(event)
@@ -50,12 +59,14 @@ func _unhandled_input(event: InputEvent) -> void:
 			KEY_G:
 				# Debug Ember gift
 				var ember := get_tree().get_first_node_in_group("ember")
-				if ember and ember.has_method("drop_gift") and _hud and _hud.has_method("toast"):
-					_hud.toast(str(ember.call("drop_gift")))
+				var hud_g := _get_hud()
+				if ember and ember.has_method("drop_gift") and hud_g and hud_g.has_method("toast"):
+					hud_g.toast(str(ember.call("drop_gift")))
 			KEY_H:
 				# Try stow hands
-				if _hud and _hud.has_method("toast"):
-					_hud.toast(Inventory.try_stow_hands())
+				var hud_h := _get_hud()
+				if hud_h and hud_h.has_method("toast"):
+					hud_h.toast(Inventory.try_stow_hands())
 	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
 			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
@@ -78,8 +89,12 @@ func _toggle_inv_handled(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	_inv_toggle_frame = f
-	if _hud and _hud.has_method("toggle_inventory"):
-		_hud.call("toggle_inventory")
+	var hud := _get_hud()
+	if hud and hud.has_method("toggle_inventory"):
+		hud.call("toggle_inventory")
+	else:
+		push_error("Player: inventory key pressed but HUD not in group 'hud'")
+		print("Player: inventory key pressed but HUD not in group 'hud'")
 	get_viewport().set_input_as_handled()
 
 func _physics_process(delta: float) -> void:
@@ -110,14 +125,19 @@ func _physics_process(delta: float) -> void:
 		var f := Engine.get_process_frames()
 		if f != _inv_toggle_frame:
 			_inv_toggle_frame = f
-			if _hud and _hud.has_method("toggle_inventory"):
-				_hud.call("toggle_inventory")
+			var hud := _get_hud()
+			if hud and hud.has_method("toggle_inventory"):
+				hud.call("toggle_inventory")
+			else:
+				push_error("Player: inventory action but HUD not in group 'hud'")
+				print("Player: inventory action but HUD not in group 'hud'")
 
 func _respawn() -> void:
 	global_transform = _spawn_xform
 	velocity = Vector3.ZERO
-	if _hud and _hud.has_method("toast"):
-		_hud.toast("Whoa — back on the balcony.")
+	var hud_r := _get_hud()
+	if hud_r and hud_r.has_method("toast"):
+		hud_r.toast("Whoa — back on the balcony.")
 
 func _track_zone() -> void:
 	# Neighbor balcony roughly x > 6.2
@@ -149,16 +169,18 @@ func _update_nearby() -> void:
 				best = area
 		found = best
 	_nearby = found
-	if _hud and _hud.has_method("set_prompt"):
+	var hud_p := _get_hud()
+	if hud_p and hud_p.has_method("set_prompt"):
 		if _nearby:
-			_hud.set_prompt(str(_nearby.call("get_prompt")))
+			hud_p.set_prompt(str(_nearby.call("get_prompt")))
 		else:
-			_hud.set_prompt("")
+			hud_p.set_prompt("")
 
 func _try_interact() -> void:
 	if _nearby == null:
 		return
 	if _nearby.has_method("interact"):
 		var msg: Variant = _nearby.call("interact", self)
-		if _hud and _hud.has_method("toast") and typeof(msg) == TYPE_STRING and str(msg) != "":
-			_hud.toast(str(msg))
+		var hud_i := _get_hud()
+		if hud_i and hud_i.has_method("toast") and typeof(msg) == TYPE_STRING and str(msg) != "":
+			hud_i.toast(str(msg))

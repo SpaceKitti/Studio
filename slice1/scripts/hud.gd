@@ -31,6 +31,7 @@ const _PLACEHOLDER_COLORS := {
 }
 
 func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	add_to_group("hud")
 	prompt_label.text = ""
 	prompt_label.visible = false
@@ -64,7 +65,7 @@ func _ready() -> void:
 	# Unmistakable build stamp — always visible top-right
 	var build_stamp := Label.new()
 	build_stamp.name = "BuildStamp"
-	build_stamp.text = "BUILD 8d7409f | press T for bag"
+	build_stamp.text = "BUILD inv-fix | press T"
 	build_stamp.add_theme_font_size_override("font_size", 18)
 	build_stamp.add_theme_color_override("font_color", Color(1.0, 1.0, 0.2, 1.0))
 	build_stamp.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -84,6 +85,15 @@ func _process(delta: float) -> void:
 		_toast_timer -= delta
 		if _toast_timer <= 0.0:
 			toast_label.text = ""
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo:
+		var codes: Array[int] = [event.keycode, event.physical_keycode]
+		for c in codes:
+			if c == KEY_TAB or c == KEY_I or c == KEY_T:
+				toggle_inventory()
+				get_viewport().set_input_as_handled()
+				return
 
 func set_prompt(text: String) -> void:
 	if text.strip_edges() == "":
