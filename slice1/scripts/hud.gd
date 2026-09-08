@@ -14,6 +14,7 @@ extends CanvasLayer
 var _toast_timer: float = 0.0
 var _inv_open: bool = false
 var _desk_open: bool = false
+var _crosshair: Label = null
 
 func _ready() -> void:
 	add_to_group("hud")
@@ -42,6 +43,7 @@ func _ready() -> void:
 	GameState.win_updated.connect(_refresh_win)
 	GameState.toast_request.connect(func(t: String): toast(t))
 	_refresh_win()
+	_ensure_crosshair()
 
 func _process(delta: float) -> void:
 	if _toast_timer > 0.0:
@@ -123,3 +125,22 @@ func _refresh_win() -> void:
 	if GameState.win_met():
 		header = "M0 WIN — COMPLETE"
 	win_label.text = header + "\n" + "\n".join(lines)
+
+func _ensure_crosshair() -> void:
+	if _crosshair != null and is_instance_valid(_crosshair):
+		return
+	var root := $Root
+	_crosshair = Label.new()
+	_crosshair.name = "Crosshair"
+	_crosshair.text = "+"
+	_crosshair.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_crosshair.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_crosshair.add_theme_font_size_override("font_size", 22)
+	_crosshair.modulate = Color(1.0, 1.0, 1.0, 0.85)
+	_crosshair.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_crosshair.set_anchors_preset(Control.PRESET_CENTER)
+	_crosshair.offset_left = -12.0
+	_crosshair.offset_right = 12.0
+	_crosshair.offset_top = -12.0
+	_crosshair.offset_bottom = 12.0
+	root.add_child(_crosshair)

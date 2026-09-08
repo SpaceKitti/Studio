@@ -10,6 +10,9 @@ var _remaining: Dictionary = {}
 var _searched: bool = false
 
 func _ready() -> void:
+	add_to_group("interactable")
+	monitoring = true
+	monitorable = true
 	collision_layer = 4
 	collision_mask = 0
 	for i in range(loot_ids.size()):

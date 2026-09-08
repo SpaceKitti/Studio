@@ -15,6 +15,7 @@ var watered: bool = false
 var _mesh_plant: MeshInstance3D
 
 func _ready() -> void:
+	add_to_group("interactable")
 	collision_layer = 4
 	collision_mask = 0
 	monitoring = false

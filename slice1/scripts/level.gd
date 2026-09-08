@@ -162,16 +162,18 @@ func _build_home_balcony() -> void:
 
 	var door := Area3D.new()
 	door.name = "DoorInteract"
-	door.position = Vector3(0.4, 1.0, 0.0)
+	# On balcony side of glass so proximity + ray both catch it easily.
+	door.position = Vector3(1.0, 1.0, 0.0)
 	door.set_script(load("res://scripts/interactable.gd"))
 	door.set("prompt_text", "[E] Open sliding glass (cat pawing)")
 	door.set("interact_id", "door")
 	door.set("one_shot", true)
 	bal.add_child(door)
+	door.add_to_group("interactable")
 	door.collision_layer = 4
 	var dcol := CollisionShape3D.new()
 	var dshape := BoxShape3D.new()
-	dshape.size = Vector3(1.2, 2.2, 2.0)
+	dshape.size = Vector3(2.0, 2.4, 2.4)
 	dcol.shape = dshape
 	door.add_child(dcol)
 
@@ -201,6 +203,7 @@ func _build_home_balcony() -> void:
 	desk.set("prompt_text", "[E] Engineering table (craft locked)")
 	desk.set("interact_id", "desk")
 	desk_root.add_child(desk)
+	desk.add_to_group("interactable")
 	desk.collision_layer = 4
 	var desk_col := CollisionShape3D.new()
 	var desk_shape := BoxShape3D.new()
@@ -222,6 +225,7 @@ func _build_home_balcony() -> void:
 	herbs.set("prompt_text", "[E] Check herbs")
 	herbs.set("interact_id", "herbs")
 	bal.add_child(herbs)
+	herbs.add_to_group("interactable")
 	herbs.collision_layer = 4
 	var hcol := CollisionShape3D.new()
 	var hshape := BoxShape3D.new()
@@ -239,6 +243,7 @@ func _build_home_balcony() -> void:
 	plant.set("initial_state", 0) # EMPTY
 	plant.set("accept_seed_ids", PackedStringArray(["tomato_seed", "potato_seed"]))
 	bal.add_child(plant)
+	plant.add_to_group("interactable")
 
 	# Ember starts behind glass (inside black volume side, visible through glass)
 	var ember := CharacterBody3D.new()
@@ -306,6 +311,7 @@ func _build_neighbor_balcony() -> void:
 	potato.set("crop_id", "potato")
 	potato.set("seed_id", "potato_seed")
 	nb.add_child(potato)
+	potato.add_to_group("interactable")
 
 	_box(nb, Vector3(0.55, 0.35, 0.55), Vector3(9.2, 0.2, -2.0), soil, "TomatoPot")
 	var tomato := Area3D.new()
@@ -317,6 +323,7 @@ func _build_neighbor_balcony() -> void:
 	tomato.set("crop_id", "tomato_fresh")
 	tomato.set("seed_id", "tomato_seed")
 	nb.add_child(tomato)
+	tomato.add_to_group("interactable")
 
 	# Note + empty bowl
 	_box(nb, Vector3(0.35, 0.05, 0.25), Vector3(9.8, 0.85, 1.5), Color(0.85, 0.8, 0.7), "Note")
@@ -328,6 +335,7 @@ func _build_neighbor_balcony() -> void:
 	note.set("prompt_text", "[E] Read note")
 	note.set("interact_id", "note")
 	nb.add_child(note)
+	note.add_to_group("interactable")
 	note.collision_layer = 4
 	var ncol := CollisionShape3D.new()
 	var nshape := BoxShape3D.new()
@@ -361,6 +369,7 @@ func _add_container(parent: Node, cname: String, pos: Vector3, color: Color, siz
 	area.set("loot_ids", ids)
 	area.set("loot_counts", counts)
 	parent.add_child(area)
+	area.add_to_group("interactable")
 
 func _build_fire_escape() -> void:
 	var fe := Node3D.new()
@@ -381,6 +390,7 @@ func _build_fire_escape() -> void:
 	area.set("prompt_text", "[E] Fire escape (locked)")
 	area.set("interact_id", "fire_escape")
 	fe.add_child(area)
+	area.add_to_group("interactable")
 	area.collision_layer = 4
 	var col := CollisionShape3D.new()
 	var shape := BoxShape3D.new()

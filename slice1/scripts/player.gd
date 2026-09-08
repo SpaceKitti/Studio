@@ -90,11 +90,29 @@ func _track_zone() -> void:
 		GameState.mark_neighbor()
 
 func _update_nearby() -> void:
+	# Prefer ray hit; fall back to nearest interactable Area3D within PROX_RANGE
+	# so slight off-angle aim still shows E (door / desk / pots).
+	const PROX_RANGE := 2.8
 	var found: Area3D = null
 	if interact_ray.is_colliding():
 		var col := interact_ray.get_collider()
 		if col is Area3D and col.has_method("get_prompt"):
 			found = col
+	if found == null:
+		var best: Area3D = null
+		var best_d := PROX_RANGE
+		var origin := global_position
+		for n in get_tree().get_nodes_in_group("interactable"):
+			if not (n is Area3D):
+				continue
+			var area := n as Area3D
+			if not area.has_method("get_prompt"):
+				continue
+			var d := origin.distance_to(area.global_position)
+			if d < best_d:
+				best_d = d
+				best = area
+		found = best
 	_nearby = found
 	if _hud and _hud.has_method("set_prompt"):
 		if _nearby:
