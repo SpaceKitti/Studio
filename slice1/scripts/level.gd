@@ -137,6 +137,18 @@ func _build_home_balcony() -> void:
 	_box(bal, Vector3(0.1, 0.85, 1.8), Vector3(4.15, 0.42, -2.1), rail, "RailE_S")
 	_box(bal, Vector3(0.1, 0.85, 1.8), Vector3(4.15, 0.42, 2.1), rail, "RailE_N")
 
+	# Orientation markers
+	var home_lbl := Label3D.new()
+	home_lbl.name = "HomeLabel"
+	home_lbl.text = "HOME"
+	home_lbl.font_size = 64
+	home_lbl.pixel_size = 0.012
+	home_lbl.position = Vector3(2.1, 0.15, 0.0)
+	home_lbl.modulate = Color(0.4, 1.0, 0.85)
+	home_lbl.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	bal.add_child(home_lbl)
+
+
 	# Neon trim on rail
 	var trim := CSGBox3D.new()
 	trim.name = "RailNeon"
@@ -180,7 +192,7 @@ func _build_home_balcony() -> void:
 	# Outdoor engineering table (desk) — craft disabled
 	var desk_root := Node3D.new()
 	desk_root.name = "EngineeringTable"
-	desk_root.position = Vector3(2.4, 0.0, 2.0)
+	desk_root.position = Vector3(1.6, 0.0, 1.8)
 	bal.add_child(desk_root)
 	_box(desk_root, Vector3(1.6, 0.07, 0.8), Vector3(0, 0.78, 0), Color(0.35, 0.28, 0.22), "Top")
 	_box(desk_root, Vector3(0.07, 0.78, 0.07), Vector3(-0.7, 0.39, -0.3), Color(0.25, 0.2, 0.18), "L1")
@@ -234,16 +246,19 @@ func _build_home_balcony() -> void:
 	herbs.add_child(hcol)
 
 	# Empty plantable pot for plant → water → harvest path
-	_box(bal, Vector3(0.5, 0.35, 0.5), Vector3(3.3, 0.2, -2.2), Color(0.4, 0.28, 0.2), "EmptyPot")
+	_box(bal, Vector3(0.5, 0.35, 0.5), Vector3(1.9, 0.2, -1.85), Color(0.4, 0.28, 0.2), "EmptyPot")
 	var plant := Area3D.new()
 	plant.name = "HomePlantSpot"
-	plant.position = Vector3(3.3, 0.2, -2.2)
+	plant.position = Vector3(1.9, 0.2, -1.85)
 	plant.set_script(load("res://scripts/plant_spot.gd"))
 	plant.set("spot_name", "home pot")
 	plant.set("initial_state", 0) # EMPTY
 	plant.set("accept_seed_ids", PackedStringArray(["tomato_seed", "potato_seed"]))
 	bal.add_child(plant)
 	plant.add_to_group("interactable")
+	# Soft lip near empty pot so plant path stays on slab (away from east gap)
+	_box(bal, Vector3(1.2, 0.14, 0.12), Vector3(1.9, 0.05, -2.35), Color(0.5, 0.4, 0.35), "PotSafetyLip")
+
 
 	# Ember starts behind glass (inside black volume side, visible through glass)
 	var ember := CharacterBody3D.new()
@@ -295,6 +310,16 @@ func _build_neighbor_balcony() -> void:
 	_box(nb, Vector3(0.1, 0.85, 1.8), Vector3(6.45, 0.42, -2.1), rail, "RailW_S")
 	_box(nb, Vector3(0.1, 0.85, 1.8), Vector3(6.45, 0.42, 2.1), rail, "RailW_N")
 	_box(nb, Vector3(0.1, 0.85, 6.0), Vector3(10.95, 0.42, 0.0), rail, "RailE")
+	var nbr_lbl := Label3D.new()
+	nbr_lbl.name = "NeighborLabel"
+	nbr_lbl.text = "NEIGHBOR"
+	nbr_lbl.font_size = 64
+	nbr_lbl.pixel_size = 0.012
+	nbr_lbl.position = Vector3(8.7, 0.15, 0.0)
+	nbr_lbl.modulate = Color(1.0, 0.55, 0.75)
+	nbr_lbl.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	nb.add_child(nbr_lbl)
+
 
 	# Neighbor building face
 	_box(nb, Vector3(0.3, 3.2, 6.2), Vector3(11.2, 1.5, 0.0), Color(0.22, 0.18, 0.24), "NeighborWall")

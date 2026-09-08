@@ -30,7 +30,7 @@ func _ready() -> void:
 	prompt_label.offset_top = -96.0
 	prompt_label.offset_bottom = -40.0
 	toast_label.text = ""
-	help_label.text = "WASD · Space jump · Mouse look · E interact · Tab inventory · G Ember gift · Esc mouse"
+	help_label.text = "WASD | Space jump | Mouse look | E interact | Tab/I/T inventory | G Ember gift | Esc mouse"
 	inv_panel.visible = false
 	desk_panel.visible = false
 	craft_btn.disabled = true

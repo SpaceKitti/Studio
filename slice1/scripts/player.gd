@@ -1,5 +1,5 @@
 extends CharacterBody3D
-## First-person player. FOV 65. Look-at + E. Tab inventory.
+## First-person player. FOV 65. Look-at + E. Tab/I/T inventory.
 
 const SPEED := 4.6
 const JUMP_VELOCITY := 5.6
@@ -38,9 +38,6 @@ func _unhandled_input(event: InputEvent) -> void:
 					Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 				else:
 					Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-			KEY_TAB, KEY_I:
-				if _hud and _hud.has_method("toggle_inventory"):
-					_hud.call("toggle_inventory")
 			KEY_G:
 				# Debug Ember gift
 				var ember := get_tree().get_first_node_in_group("ember")
@@ -77,6 +74,9 @@ func _physics_process(delta: float) -> void:
 
 	if Input.is_action_just_pressed("interact"):
 		_try_interact()
+	if Input.is_action_just_pressed("inventory"):
+		if _hud and _hud.has_method("toggle_inventory"):
+			_hud.call("toggle_inventory")
 
 func _respawn() -> void:
 	global_transform = _spawn_xform
