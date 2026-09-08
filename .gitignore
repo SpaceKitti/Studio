@@ -95,3 +95,10 @@ exports/
 
 # Logs
 *.log
+
+# Local backups / secrets
+slice1_m0_bak/
+slice1_incomplete_cache_bak/
+.git_push_token.tmp
+*.tar.gz
+

@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://studio_slice1_main"]
+[gd_scene load_steps=5 format=3 uid="uid://fire_escape_m0_main"]
 
 [ext_resource type="Script" path="res://scripts/level.gd" id="1_level"]
 [ext_resource type="Script" path="res://scripts/player.gd" id="2_player"]
@@ -14,7 +14,7 @@ height = 1.6
 script = ExtResource("1_level")
 
 [node name="Player" type="CharacterBody3D" parent="."]
-transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -3.2, 1.0, 1.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2, 1.0, 0.5)
 collision_layer = 2
 collision_mask = 1
 floor_snap_length = 0.2
@@ -27,10 +27,10 @@ shape = SubResource("CapsuleShape3D_player")
 [node name="Camera3D" type="Camera3D" parent="Player"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.45, 0)
 current = true
-fov = 75.0
+fov = 65.0
 
 [node name="InteractRay" type="RayCast3D" parent="Player/Camera3D"]
-target_position = Vector3(0, 0, -2.8)
+target_position = Vector3(0, 0, -3.0)
 collision_mask = 4
 collide_with_areas = true
 collide_with_bodies = false
@@ -51,11 +51,21 @@ mouse_filter = 2
 layout_mode = 0
 offset_left = 16.0
 offset_top = 12.0
-offset_right = 700.0
+offset_right = 900.0
 offset_bottom = 40.0
-theme_override_colors/font_color = Color(0.95, 0.9, 0.82, 0.9)
-theme_override_font_sizes/font_size = 14
-text = "WASD move · Space jump · Mouse look · E interact · Esc mouse"
+theme_override_colors/font_color = Color(0.85, 0.9, 1, 0.9)
+theme_override_font_sizes/font_size = 13
+text = "WASD · Space jump · Mouse look · E interact · Tab inventory · G Ember gift · Esc mouse"
+
+[node name="WinChecklist" type="Label" parent="HUD/Root"]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 44.0
+offset_right = 360.0
+offset_bottom = 180.0
+theme_override_colors/font_color = Color(1, 0.75, 0.45, 0.95)
+theme_override_font_sizes/font_size = 13
+text = "M0 WIN"
 
 [node name="Prompt" type="Label" parent="HUD/Root"]
 layout_mode = 1
@@ -64,13 +74,13 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -200.0
+offset_left = -280.0
 offset_top = -80.0
-offset_right = 200.0
+offset_right = 280.0
 offset_bottom = -48.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_colors/font_color = Color(1, 0.95, 0.85, 1)
+theme_override_colors/font_color = Color(0.7, 1, 0.95, 1)
 theme_override_font_sizes/font_size = 18
 horizontal_alignment = 1
 text = ""
@@ -80,14 +90,82 @@ layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -360.0
+offset_left = -400.0
 offset_top = 48.0
-offset_right = 360.0
-offset_bottom = 100.0
+offset_right = 400.0
+offset_bottom = 110.0
 grow_horizontal = 2
-theme_override_colors/font_color = Color(1, 0.92, 0.75, 1)
+theme_override_colors/font_color = Color(1, 0.85, 0.55, 1)
 theme_override_font_sizes/font_size = 16
 horizontal_alignment = 1
 autowrap_mode = 2
 text = ""
 
+[node name="InventoryPanel" type="PanelContainer" parent="HUD/Root"]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -220.0
+offset_top = -160.0
+offset_right = 220.0
+offset_bottom = 160.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="HUD/Root/InventoryPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="InvText" type="Label" parent="HUD/Root/InventoryPanel/Margin"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 15
+text = "INVENTORY"
+
+[node name="DeskPanel" type="PanelContainer" parent="HUD/Root"]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -260.0
+offset_top = -200.0
+offset_right = 260.0
+offset_bottom = 200.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="HUD/Root/DeskPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBox" type="VBoxContainer" parent="HUD/Root/DeskPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="DeskText" type="Label" parent="HUD/Root/DeskPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "RECIPES"
+
+[node name="CraftButton" type="Button" parent="HUD/Root/DeskPanel/Margin/VBox"]
+layout_mode = 2
+disabled = true
+text = "Craft (locked — M1)"
+
+[node name="CloseButton" type="Button" parent="HUD/Root/DeskPanel/Margin/VBox"]
+layout_mode = 2
+text = "Close"
