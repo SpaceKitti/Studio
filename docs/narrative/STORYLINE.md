@@ -91,10 +91,12 @@ Fire escape becomes usable as **map/node** travel (hardware, groceries). Solar k
 - Left the garden and the cat. Note / bowl. Theme seed for “finish what they started.”
 - May return later as a *different* story — not required.
 
-### The Partner *(SPECULATIVE — later arc)*
+### The Partner *(later arc — vibe LOCKED lean)*
 - Away on a trip when everything broke.
 - Expected timeline vs real timeline is the wound: “couple of months” late.
-- Skills TBD (complement intern? civilian? another tech?). Prefer **complement**, not clone — so reunion adds capability *and* friction.
+- **Vibe: trades / hands-on** (Akitti 2026-09-08). Complements the Intern’s kits — bridges, rails, fire-escape muscle, physical make-do. Not a second tech.
+- Reunion friction: they want to *build*, you want to *wire*.
+- Name / face / exact job still speculative.
 - First appearance must not dump combat or open-world sprawl; vertical home first.
 
 ---
@@ -134,13 +136,13 @@ Partner crumbs (apartment, M1+ only):
 
 ---
 
-## Open questions for Akitti (one at a time later)
+## Open questions (partner vibe answered)
 
-1. Partner vibe: soft civilian / fellow tech / something else?
+1. ~~Partner vibe~~ → **trades / hands-on** (locked lean).
 2. Reunion tone: relief-first, or relief + argument?
 3. Do they know about the virus panic before they arrive, or walk in cold?
 
-Until answered, partner stays **speculative** in docs.
+Name and backstory remain speculative until locked.
 
 ---
 
