@@ -1,7 +1,7 @@
 # Studio — Narrative Brief (v0)
 
 **Owner:** Quill (storyline) · mood sync with Prism · systems owned by Forge  
-**Status:** Pitch locked with Prism mood (2026-09-08). Slice 0 narrative hooks locked below. Forge owns systems.  
+**Status:** Pitch + Prism mood locked. Space corrected for Godot Slice 1 (interior desk). Hooks H0–H6 below. Forge owns systems.  
 **Repo:** SpaceKitti/Studio
 
 ---
@@ -20,7 +20,7 @@ Tone target: Project Zomboid systems energy × cyberpunk skin × **hopeful / scr
 
 - Working name: **the Intern** (name TBD).
 - Role: engineering **intern** — tools and instincts, not full expertise. Learns by fumbling and building.
-- Starting home: a decent apartment with a **balcony** and an **engineering desk** (tools already present).
+- Starting home: a decent apartment — **engineering desk indoors** (tools already present), then a **balcony** with herbs.
 - Pronouns in pitch: she/her — treat as provisional until Akitti locks.
 
 ---
@@ -29,11 +29,14 @@ Tone target: Project Zomboid systems energy × cyberpunk skin × **hopeful / scr
 
 Start **tiny**. No street open-world yet.
 
-### Access
-1. **Player balcony** — primary hub.
-2. **One adjacent balcony** (left or right) — jumpable / furniture-bridge later.
-3. Interior of neighbor apartment: **not** fully accessible at start.
-4. Neighbor’s **glass door**: cat paws on it → player opens → **free the cat**; stay on balconies for now.
+### Access (space lock — Slice 1 / Godot)
+Order of spaces: **apartment interior** (engineering desk) → **player balcony** (herbs) → **neighbor balcony** → **Ember at glass**.
+
+1. **Apartment interior** — hub with engineering desk (desk-on-balcony was wrong; Slice 0 flat stub is throwaway reference only).
+2. **Player balcony** — herbs; exit from interior.
+3. **One adjacent balcony** (left or right) — jumpable / furniture-bridge later.
+4. Neighbor apartment interior: **not** fully accessible at start.
+5. Neighbor’s **glass door**: Ember paws on it → player opens → free/adopt Ember.
 
 ### Cat (LOCKED character beat)
 - **Name: Ember** (locked 2026-09-08 — team pick; Akitti deferred to Studio bots).
@@ -106,14 +109,14 @@ Soft panic in the tower: footsteps, doors, distant shouting. Crowds leave. The I
 ### H1 — The glass
 On / toward the neighbor balcony: **Ember** paws the glass door. Readable silhouette (Prism). Player opens → **frees and adopts** Ember. Neighbor interior stays off-limits. First warmth beat.
 
-### H2 — Two balconies
-Player balcony (herbs + engineering desk tools) + **one** adjacent balcony (half-done potato/tomato garden). Jump between them. Theme seed: *someone started this; you finish it.*
+### H2 — Interior → two balconies
+Interior desk room → player balcony (herbs) → **one** adjacent balcony (half-done potato/tomato garden). Jump between balconies. Theme seed: *someone started this; you finish it.*
 
 ### H3 — Water still runs
 Fiction for week one: taps still work. Soft pressure to **fill everything** you can (bottles, pots, sink, bathtub if reachable later). When water fails, the story already planted the need for a collector.
 
-### H4 — Desk stub
-First craft fantasy at the engineering desk — Forge picks what actually ships (tiny). Narrative promise: intern fumbling toward competence, not expert montage.
+### H4 — Desk stub (interior)
+First craft fantasy at the **indoor** engineering desk — Forge picks what actually ships (tiny). Amber desk-lamp spill through glass is the warmth read from outside (Prism). Narrative promise: intern fumbling toward competence, not expert montage.
 
 ### H5 — Fire-escape cat / pigeon
 Ember uses the fire escape. A few times a week it brings a **pigeon** (loot/food/story TBD by Forge). First living-world gift; cat has agency.
@@ -125,11 +128,11 @@ Leaving via fire escape uses a **map / node** stub for now (hardware, groceries 
 
 ## Handoffs
 
-- **Forge:** Slice 0 = H0–H6 space: 2 balconies, cat free, herbs + potato/tomato, desk stub, map stub OK. Placeholders fine per Prism. No monsters.
+- **Forge:** Slice 1 (Godot) = interior desk → player balcony → neighbor balcony → Ember at glass. H0–H6 still apply. Slice 0 flat stub = reference only. No monsters.
 - **Prism:** Mood + palette locked in `docs/art/ART_MOOD_BRIEF.md`. Quill stays aligned on warmth/daylight/DIY.
 - **Rivet:** poke once Forge has a runnable stub.
 - **Orion / Gaming hive:** optional status ping when Akitti burns leftover usage — Quill+Prism briefs already on repo.
 
 ---
 
-*Last updated: 2026-09-08 — Quill. Mood synced with Prism. Cat name locked: Ember. Speculative sections remain flagged.*
+*Last updated: 2026-09-08 — Quill. Space correction: interior desk. Godot Slice 1. Ember locked. Speculative flagged.*
