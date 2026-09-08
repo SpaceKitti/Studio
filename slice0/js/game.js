@@ -139,23 +139,23 @@
       w: 70,
       h: 80,
       balcony: "neighbor",
-      prompt: "E — open glass / free the cat",
+      prompt: "E — open glass / free Ember",
       once: true,
       done: false,
       onInteract() {
         if (this.done) {
-          toast("The cat rubs against your leg. Adopted.");
+          toast("Ember rubs against your leg. Adopted.");
           return;
         }
         this.done = true;
-        this.prompt = "E — pet the cat";
+        this.prompt = "E — pet Ember";
         this.x = 530;
         this.y = 300;
         this.w = 70;
         this.h = 60;
         state.catFreed = true;
-        toast("You open the glass. The cat steps out — free, and yours.");
-        setStatus("Cat freed and adopted. Warmth on the balcony.");
+        toast("You open the glass. Ember steps out — free, and yours.");
+        setStatus("Ember freed and adopted. Warmth on the balcony.");
       },
     },
   ];
@@ -507,11 +507,11 @@
     if (!state.catFreed) {
       ctx.font = "11px Segoe UI, sans-serif";
       ctx.fillStyle = C.label;
-      ctx.fillText("CAT (at glass)", cx - 30, cy - 40);
+      ctx.fillText("EMBER (at glass)", cx - 36, cy - 40);
     } else {
       ctx.font = "11px Segoe UI, sans-serif";
       ctx.fillStyle = C.label;
-      ctx.fillText("YOUR CAT", cx - 24, cy - 36);
+      ctx.fillText("EMBER", cx - 18, cy - 36);
     }
   }
 
@@ -610,6 +610,6 @@
     requestAnimationFrame(loop);
   }
 
-  setStatus("Quiet after the crowd fled. Jump to the neighbor balcony — a cat is at the glass.");
+  setStatus("Quiet after the crowd fled. Jump to the neighbor balcony — Ember is at the glass.");
   loop();
 })();
