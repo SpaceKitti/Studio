@@ -1,26 +1,39 @@
-# Fire Escape — M0 item icons
+# Fire Escape — item icons
 
-**Source:** Akitti sheet `FIRE ESCAPE — MO ITEM ICONS` (2026-09-08)  
-**Split by:** Prism (no need for Akitti to separate)
+**Split by Prism from Akitti sheets (2026-09-08).**
 
-## Files
-| Item id | File | Label on sheet |
-|---------|------|----------------|
-| `tuna_can` | `tuna_can.png` / `_256.png` | TUNA CAN |
-| `flour_sr` | `flour_sr.png` / `_256.png` | SELF-RAISING FLOUR |
-| `salt` | `salt.png` / `_256.png` | SALT |
-| `water_bottle` | `water_bottle.png` / `_256.png` | WATER BOTTLES |
-| `tomato_fresh` | `tomato_fresh.png` / `_256.png` | TOMATO |
-| `potato` | `potato.png` / `_256.png` | POTATO |
-| `tomato_seed` | `tomato_seed.png` / `_256.png` | TOMATO SEEDS |
-| `potato_seed` | `potato_seed.png` / `_256.png` | POTATO SEEDS |
+## Grocery / garden (sheet 1)
+| Item id | File |
+|---------|------|
+| `tuna_can` | `tuna_can_256.png` |
+| `flour_sr` | `flour_sr_256.png` |
+| `salt` | `salt_256.png` |
+| `water_bottle` | `water_bottle_256.png` |
+| `tomato_fresh` | `tomato_fresh_256.png` |
+| `potato` | `potato_256.png` |
+| `tomato_seed` | `tomato_seed_256.png` |
+| `potato_seed` | `potato_seed_256.png` |
 
-Also: `m0_item_icons_sheet.jpg` (full sheet), `*_cell.png` (framed cell with label — reference only).
+## Salvage & solar (sheet 2)
+| Item id | File | Sheet label | Notes |
+|---------|------|-------------|-------|
+| `solar_panel_shard` | `solar_panel_shard_256.png` | CRACKED SOLAR CELL | GAME_DESIGN solar recipe piece |
+| `panel_frame` | `panel_frame_256.png` | PANEL FRAME | |
+| `copper_wire` | `copper_wire_256.png` | COPPER WIRE | |
+| `battery_cell` | `battery_cell_256.png` | BATTERY CELL | GAME_DESIGN solar recipe piece |
+| `wooden_board` | `wooden_board_256.png` | WOODEN BOARD | furniture-bridge later |
+| `nails` | `nails_256.png` | NAILS | |
+| `screws` | `screws_256.png` | SCREWS | |
+| `duct_tape` | `duct_tape_256.png` | DUCT TAPE | |
+| `scrap_metal` | `scrap_metal_256.png` | SCRAP METAL | |
+| `glass_shard` | `glass_shard_256.png` | GLASS SHARD | |
+| `salvaged_pcb` | `salvaged_pcb_256.png` | SALVAGED PCB | |
+| `electrical_tape` | `electrical_tape_256.png` | ELECTRICAL TAPE | |
 
-## Use
-- Inventory slots: prefer `*_256.png` on dark Panel Face (`#1A2233`)
-- Style is photoreal neon-rim — fine for M0 placeholders; stylize later if art direction shifts
-- Missing from sheet (still text/color OK): `herb_basil`, `herb_mint`
+Sheets: `m0_item_icons_sheet.jpg`, `m0_salvage_solar_sheet.jpg`
 
-## Godot hint
-Map `Item.id` → `res://assets/icons/<id>_256.png` when HUD inventory is opaque.
+## Still missing icons
+`herb_basil`, `herb_mint` — text/color OK for now.
+
+## Godot
+`Item.id` → `res://assets/icons/<id>_256.png` on dark Panel Face.
