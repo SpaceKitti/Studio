@@ -75,18 +75,61 @@ func try_stow_hands() -> String:
 		return "Hands empty."
 	var hid: String = hands_item_id
 	var hcount: int = hands_count
-	if add(hid, hcount):
-		var item = ItemDB.get_item(hid)
-		var nm: String = hid
-		if item:
-			nm = str(item.display_name)
-		clear_hands()
-		return "Stowed %s in backpack." % nm
-	return "Cannot stow — backpack too heavy."
+	var item = ItemDB.get_item(hid)
+	var nm: String = hid
+	if item:
+		nm = str(item.display_name)
+	if not can_add(hid, hcount):
+		return "Cannot stow — backpack too heavy."
+	if item and count(hid) + hcount > int(item.stack_max):
+		return "Cannot stow — stack full for %s." % nm
+	# Move without using add() overflow-to-hands path.
+	backpack[hid] = count(hid) + hcount
+	hands_occupied = false
+	hands_item_id = ""
+	hands_count = 0
+	changed.emit()
+	return "Stowed %s in backpack." % nm
+
+
+func take_to_hands(id: String, amount: int = 1) -> String:
+	if amount <= 0:
+		return "Nothing to take."
+	var cur: int = count(id)
+	if cur < amount:
+		return "Not enough in backpack."
+	var item = ItemDB.get_item(id)
+	var nm: String = id
+	if item:
+		nm = str(item.display_name)
+	if hands_occupied and hands_item_id != id:
+		return "Hands full — stow first."
+	var new_hands: int = amount
+	if hands_occupied and hands_item_id == id:
+		new_hands = hands_count + amount
+		if item and new_hands > int(item.stack_max):
+			return "Hands stack full for %s." % nm
+	var left: int = cur - amount
+	if left <= 0:
+		backpack.erase(id)
+	else:
+		backpack[id] = left
+	hands_occupied = true
+	hands_item_id = id
+	hands_count = new_hands
+	changed.emit()
+	return "Took %s x%d to hands." % [nm, amount]
+
+func half_to_hands(id: String) -> String:
+	var cur: int = count(id)
+	if cur < 2:
+		return "Need at least 2 to split half."
+	var half: int = int(cur / 2)
+	return take_to_hands(id, half)
 
 func summary_lines() -> PackedStringArray:
 	var lines: PackedStringArray = PackedStringArray()
-	lines.append("Backpack: %.1f / %.1f kg" % [weight_kg(), BACKPACK_CAP_KG])
+	lines.append("Backpack %.1f / %.1f kg" % [weight_kg(), BACKPACK_CAP_KG])
 	if backpack.is_empty():
 		lines.append("  (empty)")
 	else:

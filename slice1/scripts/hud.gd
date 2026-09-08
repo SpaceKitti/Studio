@@ -17,6 +17,18 @@ var _desk_open: bool = false
 var _crosshair: Label = null
 var _bag_hint: Label = null
 var _inv_style_applied: bool = false
+var _inv_ui_ready: bool = false
+var _inv_header: Label = null
+var _inv_list: VBoxContainer = null
+var _hands_row: HBoxContainer = null
+var _hands_label: Label = null
+var _stow_btn: Button = null
+var _icon_cache: Dictionary = {}
+
+const _PLACEHOLDER_COLORS := {
+	"herb_basil": Color(0.25, 0.75, 0.35),
+	"herb_mint": Color(0.35, 0.85, 0.7),
+}
 
 func _ready() -> void:
 	add_to_group("hud")
@@ -45,6 +57,7 @@ func _ready() -> void:
 	GameState.win_updated.connect(_refresh_win)
 	GameState.toast_request.connect(func(t: String): toast(t))
 	_apply_inv_style()
+	_ensure_inv_ui()
 	_refresh_win()
 	_ensure_crosshair()
 	_ensure_bag_hint()
@@ -64,6 +77,7 @@ func _ready() -> void:
 	build_stamp.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	build_stamp.z_index = 200
 	$Root.add_child(build_stamp)
+	_refresh_inv()
 
 func _process(delta: float) -> void:
 	if _toast_timer > 0.0:
@@ -90,7 +104,8 @@ func _apply_inv_style() -> void:
 	if _inv_style_applied or inv_panel == null:
 		return
 	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color(0.08, 0.1, 0.14, 0.94)
+	# Opaque Panel Face (#1A2233)
+	sb.bg_color = Color(0.102, 0.133, 0.2, 1.0)
 	sb.border_color = Color(1.0, 0.85, 0.35)
 	sb.set_border_width_all(2)
 	sb.set_corner_radius_all(6)
@@ -100,10 +115,81 @@ func _apply_inv_style() -> void:
 	sb.content_margin_bottom = 8.0
 	inv_panel.add_theme_stylebox_override("panel", sb)
 	inv_panel.z_index = 100
+	# Wider/taller for icon rows + buttons
+	inv_panel.offset_left = -300.0
+	inv_panel.offset_right = 300.0
+	inv_panel.offset_top = -260.0
+	inv_panel.offset_bottom = 260.0
 	_inv_style_applied = true
+
+func _ensure_inv_ui() -> void:
+	if _inv_ui_ready:
+		return
+	var margin: MarginContainer = $Root/InventoryPanel/Margin
+	# MarginContainer only positions one child — detach legacy InvText.
+	if inv_text.get_parent() == margin:
+		margin.remove_child(inv_text)
+	inv_text.visible = false
+	var root_vbox := VBoxContainer.new()
+	root_vbox.name = "InvRoot"
+	root_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	root_vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	root_vbox.add_theme_constant_override("separation", 8)
+	margin.add_child(root_vbox)
+
+	var title := Label.new()
+	title.text = "INVENTORY"
+	title.add_theme_font_size_override("font_size", 18)
+	title.add_theme_color_override("font_color", Color(1.0, 0.9, 0.45))
+	root_vbox.add_child(title)
+
+	_inv_header = Label.new()
+	_inv_header.name = "InvHeader"
+	_inv_header.add_theme_font_size_override("font_size", 15)
+	_inv_header.add_theme_color_override("font_color", Color(0.9, 0.95, 1.0))
+	root_vbox.add_child(_inv_header)
+
+	var scroll := ScrollContainer.new()
+	scroll.name = "InvScroll"
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.custom_minimum_size = Vector2(0, 280)
+	root_vbox.add_child(scroll)
+
+	_inv_list = VBoxContainer.new()
+	_inv_list.name = "InvList"
+	_inv_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_inv_list.add_theme_constant_override("separation", 6)
+	scroll.add_child(_inv_list)
+
+	var hands_title := Label.new()
+	hands_title.text = "HANDS"
+	hands_title.add_theme_font_size_override("font_size", 14)
+	hands_title.add_theme_color_override("font_color", Color(1.0, 0.85, 0.55))
+	root_vbox.add_child(hands_title)
+
+	_hands_row = HBoxContainer.new()
+	_hands_row.name = "HandsRow"
+	_hands_row.add_theme_constant_override("separation", 8)
+	root_vbox.add_child(_hands_row)
+
+	_hands_label = Label.new()
+	_hands_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_hands_label.add_theme_font_size_override("font_size", 14)
+	_hands_label.add_theme_color_override("font_color", Color(0.9, 0.95, 1.0))
+	_hands_row.add_child(_hands_label)
+
+	_stow_btn = Button.new()
+	_stow_btn.text = "Stow"
+	_stow_btn.visible = false
+	_stow_btn.pressed.connect(_on_stow_pressed)
+	_hands_row.add_child(_stow_btn)
+
+	_inv_ui_ready = true
 
 func toggle_inventory() -> void:
 	_apply_inv_style()
+	_ensure_inv_ui()
 	_inv_open = not _inv_open
 	inv_panel.visible = _inv_open
 	if _inv_open:
@@ -127,14 +213,122 @@ func show_desk() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 func _refresh_inv() -> void:
-	# Always keep readable text ready; still only show panel when open.
-	var lines := Inventory.summary_lines()
-	if lines.is_empty():
-		inv_text.text = "INVENTORY\nBackpack: 0.0 / 25.0 kg\n  (empty)\nHands: free"
-	else:
-		inv_text.text = "INVENTORY\n" + "\n".join(lines)
-	if not _inv_open:
+	_ensure_inv_ui()
+	if _inv_header == null or _inv_list == null:
 		return
+	_inv_header.text = "Backpack %.1f / %.1f kg" % [Inventory.weight_kg(), Inventory.BACKPACK_CAP_KG]
+	# Rebuild stack rows
+	while _inv_list.get_child_count() > 0:
+		var child: Node = _inv_list.get_child(0)
+		_inv_list.remove_child(child)
+		child.free()
+	if Inventory.backpack.is_empty():
+		var empty := Label.new()
+		empty.text = "(empty)"
+		empty.add_theme_color_override("font_color", Color(0.7, 0.75, 0.85))
+		_inv_list.add_child(empty)
+	else:
+		var ids: Array = Inventory.backpack.keys()
+		ids.sort()
+		for id in ids:
+			_inv_list.add_child(_make_stack_row(str(id), int(Inventory.backpack[id])))
+	# Hands
+	if Inventory.hands_occupied:
+		var item = ItemDB.get_item(Inventory.hands_item_id)
+		var nm: String = Inventory.hands_item_id
+		var w: float = 0.0
+		if item:
+			nm = str(item.display_name)
+			w = float(item.weight_kg) * float(Inventory.hands_count)
+		_hands_label.text = "%s x%d  (%.2f kg)" % [nm, Inventory.hands_count, w]
+		var can_stow := Inventory.can_add(Inventory.hands_item_id, Inventory.hands_count)
+		_stow_btn.visible = can_stow
+		_stow_btn.disabled = not can_stow
+	else:
+		_hands_label.text = "Hands: free"
+		_stow_btn.visible = false
+	# Keep legacy InvText in sync for debug/fallback
+	var lines := Inventory.summary_lines()
+	inv_text.text = "INVENTORY\n" + "\n".join(lines)
+
+func _make_stack_row(id: String, n: int) -> Control:
+	var item = ItemDB.get_item(id)
+	var nm: String = id
+	var unit_w: float = 0.0
+	if item:
+		nm = str(item.display_name)
+		unit_w = float(item.weight_kg)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+	row.custom_minimum_size = Vector2(0, 48)
+
+	var icon_wrap := Control.new()
+	icon_wrap.custom_minimum_size = Vector2(40, 40)
+	row.add_child(icon_wrap)
+
+	var tex: Texture2D = _texture_for_item(id)
+	if tex != null:
+		var tr := TextureRect.new()
+		tr.texture = tex
+		tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		tr.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		icon_wrap.add_child(tr)
+	else:
+		var block := ColorRect.new()
+		block.color = _PLACEHOLDER_COLORS.get(id, Color(0.45, 0.35, 0.55))
+		block.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		icon_wrap.add_child(block)
+		var tip := Label.new()
+		tip.text = nm.substr(0, 1).to_upper()
+		tip.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		tip.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		tip.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		tip.add_theme_font_size_override("font_size", 16)
+		icon_wrap.add_child(tip)
+
+	var info := Label.new()
+	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	info.text = "%s\nx%d  ·  %.2f kg" % [nm, n, unit_w * float(n)]
+	info.add_theme_font_size_override("font_size", 13)
+	info.add_theme_color_override("font_color", Color(0.92, 0.95, 1.0))
+	row.add_child(info)
+
+	var half_btn := Button.new()
+	half_btn.text = "Half"
+	half_btn.disabled = n < 2
+	half_btn.pressed.connect(func(): _on_half_pressed(id))
+	row.add_child(half_btn)
+
+	var take_btn := Button.new()
+	take_btn.text = "Take 1"
+	take_btn.disabled = n < 1
+	take_btn.pressed.connect(func(): _on_take1_pressed(id))
+	row.add_child(take_btn)
+
+	return row
+
+func _texture_for_item(id: String) -> Texture2D:
+	if _icon_cache.has(id):
+		return _icon_cache[id]
+	var path := "res://assets/icons/%s_256.png" % id
+	var tex: Texture2D = null
+	if ResourceLoader.exists(path):
+		tex = load(path) as Texture2D
+	_icon_cache[id] = tex
+	return tex
+
+func _on_half_pressed(id: String) -> void:
+	var msg := Inventory.half_to_hands(id)
+	toast(msg)
+
+func _on_take1_pressed(id: String) -> void:
+	var msg := Inventory.take_to_hands(id, 1)
+	toast(msg)
+
+func _on_stow_pressed() -> void:
+	var msg := Inventory.try_stow_hands()
+	toast(msg)
 
 func _refresh_desk() -> void:
 	var lines: PackedStringArray = PackedStringArray()
