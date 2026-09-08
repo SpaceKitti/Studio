@@ -23,7 +23,7 @@ Months later, someone you love tries to come home to a building that is no longe
 | Setting | Post-collapse cyberpunk city; neon still works; viruses still exist |
 | Tone | Not inherently dark/moody; scrappy, lived-in |
 | Protagonist | Unnamed engineering intern (she); incomplete knowledge; kits not invention |
-| Ember | Neighbor fled; adopt at sliding glass; fire escape later; pigeon gifts later |
+| Ember | Neighbor’s cat; adopt at **neighbor** glass; home glass = your apartment (blocked M0); fire escape later; pigeon gifts later |
 | Home | Balcony hub; herbs; outdoor table = desk for M0; interior opens later |
 | Neighbor | Potato + tomato mid-growth; containers; empty bowl / note for Ember |
 | Vertical world | Tower stack is the world; streets later via fire escape / map → open |
@@ -39,8 +39,8 @@ Months later, someone you love tries to come home to a building that is no longe
 
 **Story spine (H0–H2):**
 1. **Stay** — Soft chaos downstairs/upstairs fades. You don’t run.
-2. **Glass** — Ember paws the sliding door. You open. You adopt. Interior stays dark/blocked.
-3. **Finish what they started** — Neighbor garden + drawers. First “someone left this half-done” theme.
+2. **Cross** — Jump to neighbor balcony. Garden + drawers. Theme: finish what they started.
+3. **Glass** — Ember paws the **neighbor** door. You open. You adopt. Home glass stays your blocked apartment.
 
 **Optional bark / journal (cheap, high flavor):**
 - Sticky note on door frame: trip dates, “back Sunday,” already wrong.
@@ -120,7 +120,7 @@ M0 only proves: walk, adopt, loot a little, plant, see kg.
 
 Usable as interact prompts / journal — not cutscenes:
 
-- Door: “Ember. Okay. You’re with me.”
+- Neighbor door: “Ember. Okay. You’re with me.”
 - Herb pot: “Still alive. That’s the bar now.”
 - Neighbor tomato: “They meant to come back for these.”
 - Empty bowl: “Someone loved you enough to leave food. I’m late, but I’m here.”
