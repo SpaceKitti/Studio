@@ -162,9 +162,35 @@ func _build_apartment(aname: String, origin: Vector3, facing: int) -> void:
 	_box(root, Vector3(0.18, 2.8, (width * 0.5 - open_half_z)), Vector3(0.0, 1.4, (open_half_z + (width * 0.5 - open_half_z) * 0.5)), stucco, "FaceSR")
 	_box(root, Vector3(0.18, 0.45, open_half_z * 2.0), Vector3(0.0, 2.55, 0.0), asphalt, "FaceTop")
 
-	_box(root, Vector3(0.12, 2.6, 3.6), Vector3(f * 3.2, 1.3, -1.4), asphalt, "PartLivingBed")
-	_box(root, Vector3(0.12, 2.6, 2.4), Vector3(f * 3.2, 1.3, 2.0), asphalt, "PartLivingKit")
-	_box(root, Vector3(2.8, 2.6, 0.12), Vector3(f * 5.0, 1.3, 0.2), asphalt, "PartBedBath")
+	# Interior partitions with human-scale doorways (~1.1m wide, ~2.2m tall).
+	# Prior bug: mid-wall gap was only 0.4m (PartLivingBed ended z=0.4, PartLivingKit
+	# started z=0.8) — capsule radius 0.35 cannot pass. PartBedBath had no opening.
+	var door_w := 1.1
+	var door_half := door_w * 0.5
+	var mid_x := f * 3.2
+	var z_min := -width * 0.5
+	var z_max := width * 0.5
+	var mid_door_z := 0.2
+	var south_end := mid_door_z - door_half
+	var north_start := mid_door_z + door_half
+	var south_len := south_end - z_min
+	var north_len := z_max - north_start
+	_box(root, Vector3(0.12, 2.6, south_len), Vector3(mid_x, 1.3, (z_min + south_end) * 0.5), asphalt, "PartLivingBed")
+	_box(root, Vector3(0.12, 2.6, north_len), Vector3(mid_x, 1.3, (north_start + z_max) * 0.5), asphalt, "PartLivingKit")
+	_box(root, Vector3(0.12, 0.4, door_w), Vector3(mid_x, 2.4, mid_door_z), asphalt, "PartMidLintel")
+
+	# Bed|bath wall (Z=const) with matching doorway along depth
+	var bb_z := 0.2
+	var u0 := 3.4
+	var u1 := 6.5
+	var bed_door_u := 5.0
+	var a_end_u := bed_door_u - door_half
+	var b_start_u := bed_door_u + door_half
+	var seg_a_len := a_end_u - u0
+	var seg_b_len := u1 - b_start_u
+	_box(root, Vector3(seg_a_len, 2.6, 0.12), Vector3(f * (u0 + a_end_u) * 0.5, 1.3, bb_z), asphalt, "PartBedBathA")
+	_box(root, Vector3(seg_b_len, 2.6, 0.12), Vector3(f * (b_start_u + u1) * 0.5, 1.3, bb_z), asphalt, "PartBedBathB")
+	_box(root, Vector3(door_w, 0.4, 0.12), Vector3(f * bed_door_u, 2.4, bb_z), asphalt, "PartBedBathLintel")
 
 	# --- Living: Lamp Pocket warm island (rest, not craft — desk stays outdoor) ---
 	var living_lamp := OmniLight3D.new()
@@ -265,7 +291,7 @@ func _build_apartment(aname: String, origin: Vector3, facing: int) -> void:
 	bath_lamp.omni_range = 4.0
 	root.add_child(bath_lamp)
 
-	_box(root, Vector3(2.4, 2.5, 0.12), Vector3(f * 5.0, 1.25, 1.4), wet_concrete, "BathWall")
+	_box(root, Vector3(1.5, 2.5, 0.12), Vector3(f * 4.5, 1.25, 1.4), wet_concrete, "BathWall")
 	# Mold teal corner soft
 	_box(root, Vector3(0.15, 1.2, 0.15), Vector3(f * 6.4, 0.6, 2.5), mold_teal, "MoldCorner", 0.95)
 	# Sink
