@@ -34,13 +34,14 @@ Player can walk both balconies, free/adopt the cat, pick up 3 items, plant 1 cro
 ### Home balcony
 - Small outdoor table = engineering desk (tools already there; crafting UI later)
 - 2–3 starter herb pots (alive)
-- Sliding glass door. Cat paws on the glass. Interact = "open" and cat comes onto balcony.
-- Optional: door does not enter interior yet. Interior is a black/blocked volume.
+- Sliding glass door = **your apartment** (blocked for M0 — no Ember). Interior is a black/blocked volume.
+- Spawn on home; face the gap toward neighbor.
 
 ### Neighbor balcony
 - Half-started garden: 1 potato pot, 1 tomato pot (mid-growth)
 - A few searchable containers: planter box, plastic drawer, rusted toolbox
 - Neighbor is gone. Note or empty food bowl explains the cat.
+- Sliding glass = **neighbor’s** apartment. **Ember** (neighbor’s cat) paws here. Interact = free/adopt. Neighbor interior off-limits for M0.
 
 ### Traversal M0
 - Gap between balconies is jumpable.
