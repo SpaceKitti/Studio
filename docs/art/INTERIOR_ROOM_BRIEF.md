@@ -34,11 +34,11 @@ Key rule: warm islands + cooler wet rooms. Neon is trim only (one family per sur
 - Toxic Lime only if something’s living (herb transfer later); otherwise Herb Sap greens
 
 ## Bedroom — Rex absence crumbs (Quill)
-**Set dressing only — no cutscene.**
-- Open/half-packed **suitcase**
-- **Dual cup** (two mugs — someone expected company / left in a hurry)
+**Set dressing only — no cutscene. Home bedroom only — neighbor stays Ember/bowl, no Rex stuff.**
+- Half-packed **suitcase** with trip tag
+- **Dual toothbrush cup** (one dry)
+- Coiled **phone charger**
 - Keep soft: Cat Cream linens, Lamp Pocket bedside, not Dried Blood Rust drama
-- Neighbor bedroom can mirror with different mess (more left-behind)
 
 ## Bath
 - Tub + sink pluggable / running water (Forge)
