@@ -20,6 +20,11 @@ func _ready() -> void:
 	camera.fov = 65.0
 	_hud = get_tree().get_first_node_in_group("hud")
 	_spawn_xform = global_transform
+	# Godot 4 RayCast3D defaults collide_with_areas=false; interactables are Area3D on layer 4.
+	interact_ray.enabled = true
+	interact_ray.collide_with_areas = true
+	interact_ray.collide_with_bodies = false
+	interact_ray.collision_mask = 4
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:

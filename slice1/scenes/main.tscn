@@ -30,6 +30,7 @@ current = true
 fov = 65.0
 
 [node name="InteractRay" type="RayCast3D" parent="Player/Camera3D"]
+enabled = true
 target_position = Vector3(0, 0, -3.0)
 collision_mask = 4
 collide_with_areas = true
@@ -68,20 +69,21 @@ theme_override_font_sizes/font_size = 13
 text = "M0 WIN"
 
 [node name="Prompt" type="Label" parent="HUD/Root"]
+visible = false
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -280.0
-offset_top = -80.0
-offset_right = 280.0
-offset_bottom = -48.0
+offset_left = -320.0
+offset_top = -96.0
+offset_right = 320.0
+offset_bottom = -40.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_colors/font_color = Color(0.7, 1, 0.95, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(1, 1, 0.55, 1)
+theme_override_font_sizes/font_size = 28
 horizontal_alignment = 1
 text = ""
 

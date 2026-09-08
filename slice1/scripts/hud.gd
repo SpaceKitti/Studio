@@ -18,6 +18,16 @@ var _desk_open: bool = false
 func _ready() -> void:
 	add_to_group("hud")
 	prompt_label.text = ""
+	prompt_label.visible = false
+	prompt_label.add_theme_font_size_override("font_size", 28)
+	prompt_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	prompt_label.modulate = Color(1.0, 1.0, 0.55, 1.0)
+	# Center-bottom prompt so E is unmistakable when looking at an interactable.
+	prompt_label.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	prompt_label.offset_left = -320.0
+	prompt_label.offset_right = 320.0
+	prompt_label.offset_top = -96.0
+	prompt_label.offset_bottom = -40.0
 	toast_label.text = ""
 	help_label.text = "WASD · Space jump · Mouse look · E interact · Tab inventory · G Ember gift · Esc mouse"
 	inv_panel.visible = false
@@ -40,7 +50,15 @@ func _process(delta: float) -> void:
 			toast_label.text = ""
 
 func set_prompt(text: String) -> void:
-	prompt_label.text = text
+	if text.strip_edges() == "":
+		prompt_label.text = ""
+		prompt_label.visible = false
+		return
+	var shown := text
+	if not (shown.begins_with("[E]") or shown.begins_with("E ") or shown.begins_with("[blocked]")):
+		shown = "[E] " + shown
+	prompt_label.text = shown
+	prompt_label.visible = true
 
 func toast(text: String, duration: float = 3.5) -> void:
 	toast_label.text = text
