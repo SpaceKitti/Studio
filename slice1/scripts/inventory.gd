@@ -1,4 +1,4 @@
-extends Node
+﻿extends Node
 ## Autoload: backpack kg inventory + hands_occupied.
 
 signal changed
@@ -40,7 +40,7 @@ func add(id: String, amount: int = 1) -> bool:
 			hands_item_id = id
 			hands_count = 1
 			changed.emit()
-			rejected.emit("Backpack full (%.1f/%.1f kg) — took in hands." % [weight_kg(), BACKPACK_CAP_KG])
+			rejected.emit("Backpack full (%.1f/%.1f kg) â€” took in hands." % [weight_kg(), BACKPACK_CAP_KG])
 			return true
 		rejected.emit("Too heavy. Backpack %.1f / %.1f kg." % [weight_kg(), BACKPACK_CAP_KG])
 		return false
@@ -80,9 +80,9 @@ func try_stow_hands() -> String:
 	if item:
 		nm = str(item.display_name)
 	if not can_add(hid, hcount):
-		return "Cannot stow — backpack too heavy."
+		return "Cannot stow â€” backpack too heavy."
 	if item and count(hid) + hcount > int(item.stack_max):
-		return "Cannot stow — stack full for %s." % nm
+		return "Cannot stow â€” stack full for %s." % nm
 	# Move without using add() overflow-to-hands path.
 	backpack[hid] = count(hid) + hcount
 	hands_occupied = false
@@ -103,7 +103,7 @@ func take_to_hands(id: String, amount: int = 1) -> String:
 	if item:
 		nm = str(item.display_name)
 	if hands_occupied and hands_item_id != id:
-		return "Hands full — stow first."
+		return "Hands full â€” stow first."
 	var new_hands: int = amount
 	if hands_occupied and hands_item_id == id:
 		new_hands = hands_count + amount
@@ -126,6 +126,29 @@ func half_to_hands(id: String) -> String:
 		return "Need at least 2 to split half."
 	var half: int = int(cur / 2)
 	return take_to_hands(id, half)
+
+
+func consume_water_tool() -> String:
+	## Prefer hands tool, then backpack bottle. watering_can is reusable (not consumed).
+	## Returns tool id used, or "" if none available.
+	if hands_occupied:
+		if hands_item_id == "watering_can":
+			return "watering_can"
+		if hands_item_id == "water_bottle":
+			hands_count -= 1
+			if hands_count <= 0:
+				clear_hands()
+			else:
+				changed.emit()
+			return "water_bottle"
+		return ""
+	if count("water_bottle") > 0:
+		remove("water_bottle", 1)
+		return "water_bottle"
+	if count("watering_can") > 0:
+		# Can stays in pack — "use" without consume
+		return "watering_can"
+	return ""
 
 func summary_lines() -> PackedStringArray:
 	var lines: PackedStringArray = PackedStringArray()
@@ -151,3 +174,4 @@ func summary_lines() -> PackedStringArray:
 	else:
 		lines.append("Hands: free")
 	return lines
+

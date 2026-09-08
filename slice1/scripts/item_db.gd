@@ -1,4 +1,4 @@
-extends Node
+﻿extends Node
 ## Autoload: known item definitions for Milestone 0.
 
 const ItemScript = preload("res://scripts/item.gd")
@@ -11,6 +11,7 @@ func _ready() -> void:
 	_register("potato_seed", "Seed potato", 0.1, 8, ["seed", "crop"])
 	_register("tomato_seed", "Tomato seedling", 0.3, 8, ["seed", "crop"])
 	_register("water_bottle", "Water bottle", 0.5, 6, ["water", "grocery"])
+	_register("watering_can", "Watering can", 1.2, 1, ["water", "tool"])
 	_register("tuna_can", "Canned tuna", 0.15, 10, ["food", "grocery"])
 	_register("flour_sr", "Self-raising flour", 1.0, 4, ["food", "grocery"])
 	_register("salt", "Salt", 0.3, 8, ["food", "grocery"])
@@ -31,3 +32,4 @@ func get_item(id: String):
 
 func all_ids() -> Array:
 	return _items.keys()
+

@@ -10,7 +10,7 @@ Playable Godot 4.x **3D** slice under `slice1/`:
 
 | Space | Contents |
 |-------|----------|
-| **Home balcony** | Outdoor desk stub (craft locked; moves inside M1), 3 herb pots, 1 empty plantable pot, **blocked** own sliding glass (no Ember), interior = black volume |
+| **Home balcony** | Outdoor desk stub (craft locked), 3 herb pots, 1 empty plantable pot, own sliding glass (opens to home apt in M1; no Ember here) |
 | **Neighbor balcony** | Potato + tomato mid-growth pots, 3 containers, note + empty bowl, neighbor sliding glass with **Ember** behind it (**E** opens → adopt HERE) |
 | **Traversal** | Jumpable gap (~2 m). Fire escape visible, interact says locked. Skybox/street backdrop only |
 | **Systems** | Look-at + **E**; Item resources with `weight_kg`; backpack **25 kg**; `hands_occupied`; garden plant/water/harvest; `solar_rig` recipe data with craft locked; Ember follows loosely; **G** debug gift drop |
@@ -57,7 +57,7 @@ Or: Godot → Open `slice1/project.godot` → **F5**.
 
 ### Suggested M0 play path
 
-1. On home balcony: herbs / desk / empty pot; own glass is blocked (no Ember).
+1. On home balcony: herbs / desk / empty pot; own glass has no Ember (neighbor does).
 2. Jump east gap to neighbor balcony; **E** neighbor glass → adopt Ember.
 3. Search **planter box** (seeds), **plastic drawer** (water/tuna/flour), **rusted toolbox** (salt/water) — get ≥3 pickups.
 4. Jump back; plant seed in empty home pot → water with bottle → harvest.
@@ -66,7 +66,7 @@ Or: Godot → Open `slice1/project.godot` → **F5**.
 
 ## Explicitly out of scope (reject)
 
-Streets, infected/enemies, full apartment interior, hardware store, Unreal, 2D, HTML, main-menu polish, second building, usable fire-escape open world, finished solar craft loop.
+Streets, infected/enemies, streets-scale interior polish, hardware store, Unreal, 2D, HTML, main-menu polish, second building, usable fire-escape open world, finished solar craft loop.
 
 ## Project layout
 
@@ -78,3 +78,7 @@ slice1/
 ```
 
 Autoloads: `ItemDB`, `Inventory`, `GameState`.
+
+## Next
+
+See [`MILESTONE_1.md`](MILESTONE_1.md) for apartment interiors + water fixtures.

@@ -1,6 +1,7 @@
-extends Area3D
+﻿extends Area3D
 class_name PlantSpot
 ## Stupid-simple garden: empty → planted → growing → harvestable.
+## Watering allowed with hands holding water_bottle / watering_can (tool use).
 
 enum State { EMPTY, PLANTED, GROWING, HARVESTABLE, DEAD }
 
@@ -35,34 +36,65 @@ func _ensure_shape() -> void:
 		col.position = Vector3(0, 0.5, 0)
 		add_child(col)
 
+func _needs_water() -> bool:
+	return state == State.PLANTED or (state == State.GROWING and not watered)
+
+func _water_tool_in_hands() -> String:
+	if not Inventory.hands_occupied:
+		return ""
+	var hid := Inventory.hands_item_id
+	if hid == "water_bottle" or hid == "watering_can":
+		return hid
+	return ""
+
 func get_prompt() -> String:
-	if Inventory.hands_occupied:
+	var tool := _water_tool_in_hands()
+	if Inventory.hands_occupied and tool == "":
+		# Plant / harvest still blocked; watering can use tool
+		if _needs_water():
+			return "[blocked] Hands full — stow, or Take 1 water bottle to water"
 		return "[blocked] Hands full"
 	match state:
 		State.EMPTY:
+			if Inventory.hands_occupied:
+				return "[blocked] Hands full — stow to plant"
 			return "[E] Plant seed (%s)" % spot_name
 		State.PLANTED:
+			if tool != "":
+				return "[E] Water %s (use %s)" % [spot_name, _tool_label(tool)]
 			return "[E] Water %s" % spot_name
 		State.GROWING:
 			if watered:
 				return "[E] Wait… almost ready"
+			if tool != "":
+				return "[E] Water %s (use %s)" % [spot_name, _tool_label(tool)]
 			return "[E] Water %s" % spot_name
 		State.HARVESTABLE:
+			if Inventory.hands_occupied:
+				return "[blocked] Hands full — stow to harvest"
 			return "[E] Harvest %s" % spot_name
 		_:
 			return ""
 
+func _tool_label(id: String) -> String:
+	var item = ItemDB.get_item(id)
+	if item:
+		return str(item.display_name).to_lower()
+	return id
+
 func interact(_actor: Node) -> String:
-	if Inventory.hands_occupied:
-		return "Hands occupied — can't garden."
 	match state:
 		State.EMPTY:
+			if Inventory.hands_occupied:
+				return "Hands occupied — stow first to plant."
 			return _try_plant()
 		State.PLANTED, State.GROWING:
 			if state == State.GROWING and watered:
 				return "Already watered. Growth is mid — harvest soon (press E again after a beat)."
 			return _try_water()
 		State.HARVESTABLE:
+			if Inventory.hands_occupied:
+				return "Hands occupied — stow first to harvest."
 			return _try_harvest()
 		_:
 			return "Dead plant."
@@ -91,9 +123,9 @@ func _try_plant() -> String:
 	return "Planted %s in %s." % [nm, spot_name]
 
 func _try_water() -> String:
-	if Inventory.count("water_bottle") <= 0:
-		return "Need a water bottle."
-	Inventory.remove("water_bottle", 1)
+	var used := Inventory.consume_water_tool()
+	if used == "":
+		return "Need a water bottle (backpack or hands) — Take 1 then E, or stow other item."
 	watered = true
 	GameState.mark_water()
 	if state == State.PLANTED:
@@ -101,7 +133,8 @@ func _try_water() -> String:
 	elif state == State.GROWING:
 		state = State.HARVESTABLE
 	_refresh_visual()
-	return "Watered %s. Ready to harvest." % spot_name
+	var label := _tool_label(used)
+	return "Watered %s with %s. Ready to harvest." % [spot_name, label]
 
 func _try_harvest() -> String:
 	var item = ItemDB.get_item(crop_id)

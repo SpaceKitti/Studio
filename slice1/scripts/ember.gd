@@ -75,9 +75,9 @@ func _hop_to_player() -> void:
 	var dest := Vector3(p.x - HOP_OFFSET * 0.7, 0.2, p.z + HOP_OFFSET * 0.7)
 	# Keep Ember on the same balcony slab as the player
 	if p.x > NEIGHBOR_SIDE_MIN_X:
-		dest.x = clampf(dest.x, 6.8, 10.6)
+		dest.x = clampf(dest.x, 6.8, 16.5)
 	else:
-		dest.x = clampf(dest.x, 0.4, 3.9)
+		dest.x = clampf(dest.x, -6.5, 3.9)
 	dest.z = clampf(dest.z, -2.4, 2.4)
 	global_position = dest
 	velocity = Vector3.ZERO

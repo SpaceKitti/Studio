@@ -140,7 +140,7 @@ func _respawn() -> void:
 		hud_r.toast("Whoa — back on the balcony.")
 
 func _track_zone() -> void:
-	# Neighbor balcony roughly x > 6.2
+	# Neighbor balcony / apt roughly x > 6.2
 	if global_position.x > 6.2:
 		GameState.mark_neighbor()
 
