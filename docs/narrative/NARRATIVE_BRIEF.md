@@ -6,7 +6,7 @@
 **Canon scope:** `docs/GAME_DESIGN.md` (working title **Fire Escape**) overrides this file on space/systems for Milestone 0.  
 **Status:** Parked until Akitti greenlights M0 build. Godot 4 3D only.
 
-> **M0 space lock (from GAME_DESIGN.md):** home balcony + outdoor table desk + sliding door/Ember + one neighbor balcony. Full interior = **M1**. Earlier “interior desk for Slice 1” note is superseded for M0.
+> **M0 space lock (Akitti 2026-09-08):** home balcony + outdoor desk + **blocked home glass** (your apartment) + neighbor balcony with **Ember at neighbor glass**. Full interior = **M1**.
 
 ---
 
@@ -33,11 +33,12 @@ Tone target: Project Zomboid systems energy × cyberpunk skin × **hopeful / scr
 
 Start **tiny**. No street open-world yet.
 
-### Access (M0 — from GAME_DESIGN.md)
-1. **Home balcony** — herbs + outdoor table desk; primary hub.
-2. **Sliding glass door** — Ember paws; open → adopt; interior blocked for M0.
-3. **One neighbor balcony** — potato/tomato + containers; jump gap.
-4. Fire escape = backdrop only (not usable open world).
+### Access (M0 — Akitti layout lock)
+1. **Home balcony** — spawn, herbs, outdoor table desk; primary hub.
+2. **Home glass** — your apartment; **blocked** for M0 (no Ember).
+3. **Neighbor balcony** — potato/tomato + containers; jump gap.
+4. **Neighbor glass** — Ember (neighbor’s cat) paws here → free/adopt.
+5. Fire escape = backdrop only (not usable open world).
 
 ### Cat (LOCKED character beat)
 - **Name: Ember** (locked 2026-09-08 — team pick; Akitti deferred to Studio bots).
@@ -136,4 +137,4 @@ Leaving via fire escape uses a **map / node** stub for now (hardware, groceries 
 
 ---
 
-*Last updated: 2026-09-08 — Quill. Deferred to docs/GAME_DESIGN.md for M0 (Fire Escape). Parked. Ember locked.*
+*Last updated: 2026-09-08 — Quill. Ember at neighbor glass; home glass = your apartment (blocked). Ember name locked.*
