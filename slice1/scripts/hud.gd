@@ -15,6 +15,8 @@ var _toast_timer: float = 0.0
 var _inv_open: bool = false
 var _desk_open: bool = false
 var _crosshair: Label = null
+var _bag_hint: Label = null
+var _inv_style_applied: bool = false
 
 func _ready() -> void:
 	add_to_group("hud")
@@ -30,7 +32,7 @@ func _ready() -> void:
 	prompt_label.offset_top = -96.0
 	prompt_label.offset_bottom = -40.0
 	toast_label.text = ""
-	help_label.text = "WASD | Space jump | Mouse look | E interact | Tab/I/T inventory | G Ember gift | Esc mouse"
+	help_label.text = "WASD | Space jump | Mouse look | E interact | T inventory (or Tab/I) | G Ember gift | Esc mouse"
 	inv_panel.visible = false
 	desk_panel.visible = false
 	craft_btn.disabled = true
@@ -42,8 +44,10 @@ func _ready() -> void:
 	Inventory.rejected.connect(func(r: String): toast(r))
 	GameState.win_updated.connect(_refresh_win)
 	GameState.toast_request.connect(func(t: String): toast(t))
+	_apply_inv_style()
 	_refresh_win()
 	_ensure_crosshair()
+	_ensure_bag_hint()
 
 func _process(delta: float) -> void:
 	if _toast_timer > 0.0:
@@ -66,7 +70,24 @@ func toast(text: String, duration: float = 3.5) -> void:
 	toast_label.text = text
 	_toast_timer = duration
 
+func _apply_inv_style() -> void:
+	if _inv_style_applied or inv_panel == null:
+		return
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.08, 0.1, 0.14, 0.94)
+	sb.border_color = Color(1.0, 0.85, 0.35)
+	sb.set_border_width_all(2)
+	sb.set_corner_radius_all(6)
+	sb.content_margin_left = 8.0
+	sb.content_margin_right = 8.0
+	sb.content_margin_top = 8.0
+	sb.content_margin_bottom = 8.0
+	inv_panel.add_theme_stylebox_override("panel", sb)
+	inv_panel.z_index = 100
+	_inv_style_applied = true
+
 func toggle_inventory() -> void:
+	_apply_inv_style()
 	_inv_open = not _inv_open
 	inv_panel.visible = _inv_open
 	if _inv_open:
@@ -74,6 +95,9 @@ func toggle_inventory() -> void:
 		desk_panel.visible = false
 		GameState.mark_inventory_open()
 		_refresh_inv()
+		inv_panel.z_index = 100
+		inv_panel.move_to_front()
+		toast("Inventory — Tab/I/T to close")
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	else:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
@@ -87,10 +111,14 @@ func show_desk() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 func _refresh_inv() -> void:
+	# Always keep readable text ready; still only show panel when open.
+	var lines := Inventory.summary_lines()
+	if lines.is_empty():
+		inv_text.text = "INVENTORY\nBackpack: 0.0 / 25.0 kg\n  (empty)\nHands: free"
+	else:
+		inv_text.text = "INVENTORY\n" + "\n".join(lines)
 	if not _inv_open:
 		return
-	var lines := Inventory.summary_lines()
-	inv_text.text = "INVENTORY\n" + "\n".join(lines)
 
 func _refresh_desk() -> void:
 	var lines: PackedStringArray = PackedStringArray()
@@ -144,3 +172,21 @@ func _ensure_crosshair() -> void:
 	_crosshair.offset_top = -12.0
 	_crosshair.offset_bottom = 12.0
 	root.add_child(_crosshair)
+
+func _ensure_bag_hint() -> void:
+	if _bag_hint != null and is_instance_valid(_bag_hint):
+		return
+	var root := $Root
+	_bag_hint = Label.new()
+	_bag_hint.name = "BagHint"
+	_bag_hint.text = "T: bag"
+	_bag_hint.add_theme_font_size_override("font_size", 14)
+	_bag_hint.add_theme_color_override("font_color", Color(1.0, 0.85, 0.35, 0.9))
+	_bag_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_bag_hint.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	_bag_hint.offset_left = -96.0
+	_bag_hint.offset_right = -16.0
+	_bag_hint.offset_top = -36.0
+	_bag_hint.offset_bottom = -12.0
+	_bag_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	root.add_child(_bag_hint)

@@ -14,6 +14,7 @@ var _pitch: float = 0.0
 var _nearby: Area3D = null
 var _hud: Node = null
 var _spawn_xform: Transform3D
+var _inv_toggle_frame: int = -1
 
 func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
@@ -28,12 +29,18 @@ func _ready() -> void:
 	interact_ray.collide_with_bodies = false
 	interact_ray.collision_mask = 4
 
+func _input(event: InputEvent) -> void:
+	_try_inventory_key(event)
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		rotate_y(-event.relative.x * MOUSE_SENS)
 		_pitch = clamp(_pitch - event.relative.y * MOUSE_SENS, deg_to_rad(-80.0), deg_to_rad(80.0))
 		camera.rotation.x = _pitch
 	elif event is InputEventKey and event.pressed and not event.echo:
+		if _is_inventory_key(event):
+			_toggle_inv_handled(event)
+			return
 		match event.keycode:
 			KEY_ESCAPE:
 				if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
@@ -52,6 +59,28 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
 			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+func _try_inventory_key(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo and _is_inventory_key(event):
+		_toggle_inv_handled(event)
+
+func _is_inventory_key(event: InputEventKey) -> bool:
+	# Prefer physical_keycode — project.godot binds Tab/I/T that way; keycode can be 0.
+	var codes: Array[int] = [event.keycode, event.physical_keycode]
+	for c in codes:
+		if c == KEY_TAB or c == KEY_I or c == KEY_T:
+			return true
+	return false
+
+func _toggle_inv_handled(event: InputEvent) -> void:
+	var f := Engine.get_process_frames()
+	if f == _inv_toggle_frame:
+		get_viewport().set_input_as_handled()
+		return
+	_inv_toggle_frame = f
+	if _hud and _hud.has_method("toggle_inventory"):
+		_hud.call("toggle_inventory")
+	get_viewport().set_input_as_handled()
 
 func _physics_process(delta: float) -> void:
 	if not is_on_floor():
@@ -76,9 +105,13 @@ func _physics_process(delta: float) -> void:
 
 	if Input.is_action_just_pressed("interact"):
 		_try_interact()
+	# Keep action poll as backup (Tab/I/T bound on inventory action).
 	if Input.is_action_just_pressed("inventory"):
-		if _hud and _hud.has_method("toggle_inventory"):
-			_hud.call("toggle_inventory")
+		var f := Engine.get_process_frames()
+		if f != _inv_toggle_frame:
+			_inv_toggle_frame = f
+			if _hud and _hud.has_method("toggle_inventory"):
+				_hud.call("toggle_inventory")
 
 func _respawn() -> void:
 	global_transform = _spawn_xform
