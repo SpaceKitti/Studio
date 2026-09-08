@@ -65,7 +65,7 @@ func _ready() -> void:
 	# Unmistakable build stamp — always visible top-right
 	var build_stamp := Label.new()
 	build_stamp.name = "BuildStamp"
-	build_stamp.text = "BUILD 164bb5c | press T"
+	build_stamp.text = "BUILD ffd6b88 | press T"
 	build_stamp.add_theme_font_size_override("font_size", 18)
 	build_stamp.add_theme_color_override("font_color", Color(1.0, 1.0, 0.2, 1.0))
 	build_stamp.mouse_filter = Control.MOUSE_FILTER_IGNORE
