@@ -3,6 +3,7 @@
 #include "FEPlayerController.h"
 #include "FELevelBuilder.h"
 #include "GameFramework/HUD.h"
+#include "EngineUtils.h"
 
 AFEGameMode::AFEGameMode()
 {
@@ -13,10 +14,24 @@ AFEGameMode::AFEGameMode()
 
 void AFEGameMode::StartPlay()
 {
-	FActorSpawnParameters Sp;
-	Sp.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	Sp.Name = TEXT("LevelBuilder");
-	LevelBuilder = GetWorld()->SpawnActor<AFELevelBuilder>(FVector::ZeroVector, FRotator::ZeroRotator, Sp);
+	bool bHasM0Geometry = false;
+	for (TActorIterator<AActor> It(GetWorld()); It; ++It)
+	{
+		if (AFELevelBuilder* Existing = Cast<AFELevelBuilder>(*It))
+		{
+			LevelBuilder = Existing;
+		}
+		if (It->ActorHasTag(FName(TEXT("FE_M0"))))
+		{
+			bHasM0Geometry = true;
+		}
+	}
+	if (!LevelBuilder && !bHasM0Geometry)
+	{
+		FActorSpawnParameters Sp;
+		Sp.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		LevelBuilder = GetWorld()->SpawnActor<AFELevelBuilder>(FVector::ZeroVector, FRotator::ZeroRotator, Sp);
+	}
 	if (LevelBuilder)
 	{
 		LevelBuilder->BuildNow();

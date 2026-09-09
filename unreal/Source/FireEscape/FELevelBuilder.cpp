@@ -33,6 +33,19 @@ namespace
 	{
 		return FVector(X, Z, Y);
 	}
+
+	void KeepLoaded(AActor* Actor)
+	{
+		if (!Actor)
+		{
+			return;
+		}
+		Actor->Tags.AddUnique(FName(TEXT("FE_M0")));
+		Actor->SetIsSpatiallyLoaded(false);
+#if WITH_EDITOR
+		Actor->SetFolderPath(FName(TEXT("M0")));
+#endif
+	}
 }
 
 AFELevelBuilder::AFELevelBuilder()
@@ -102,6 +115,8 @@ void AFELevelBuilder::BuildNow()
 	FActorSpawnParameters Sp;
 	Sp.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	PlayerStartActor = GetWorld()->SpawnActor<APlayerStart>(GPos(2.1f, 0.92f, 0.f), FRotator(0.f, 0.f, 0.f), Sp);
+	KeepLoaded(PlayerStartActor);
+	UE_LOG(LogTemp, Log, TEXT("FELevelBuilder: M0 balconies built."));
 }
 
 UMaterialInstanceDynamic* AFELevelBuilder::MakeMat(const FLinearColor& Color, bool bEmissive, float EmissiveStrength)
@@ -152,8 +167,11 @@ AStaticMeshActor* AFELevelBuilder::SpawnBox(const FVector& GodotPos, const FVect
 		Mesh->SetCollisionObjectType(ECC_WorldStatic);
 		Mesh->SetCollisionResponseToAllChannels(ECR_Block);
 	}
+	Actor->Tags.Add(FName(TEXT("FE_M0")));
+	Actor->SetIsSpatiallyLoaded(false);
 #if WITH_EDITOR
 	Actor->SetActorLabel(Name.ToString());
+	Actor->SetFolderPath(FName(TEXT("M0")));
 #endif
 	return Actor;
 }
@@ -175,6 +193,8 @@ APointLight* AFELevelBuilder::SpawnPointLight(const FVector& GodotPos, const FLi
 		C->SetCastShadows(false);
 		C->SetMobility(EComponentMobility::Movable);
 	}
+	Light->Tags.Add(FName(TEXT("FE_M0")));
+	Light->SetIsSpatiallyLoaded(false);
 	return Light;
 }
 
@@ -185,6 +205,7 @@ void AFELevelBuilder::BuildEnvironment()
 	UWorld* World = GetWorld();
 
 	ADirectionalLight* Sun = World->SpawnActor<ADirectionalLight>(FVector::ZeroVector, FRotator(-28.f, 55.f, 10.f), Sp);
+	KeepLoaded(Sun);
 	if (Sun)
 	{
 		if (UDirectionalLightComponent* C = Cast<UDirectionalLightComponent>(Sun->GetLightComponent()))
@@ -198,6 +219,7 @@ void AFELevelBuilder::BuildEnvironment()
 	}
 
 	ASkyLight* Sky = World->SpawnActor<ASkyLight>(FVector(400.f, 0.f, 400.f), FRotator::ZeroRotator, Sp);
+	KeepLoaded(Sky);
 	if (Sky && Sky->GetLightComponent())
 	{
 		USkyLightComponent* C = Sky->GetLightComponent();
@@ -208,6 +230,7 @@ void AFELevelBuilder::BuildEnvironment()
 	}
 
 	AExponentialHeightFog* Fog = World->SpawnActor<AExponentialHeightFog>(FVector(400.f, -800.f, -200.f), FRotator::ZeroRotator, Sp);
+	KeepLoaded(Fog);
 	if (Fog && Fog->GetComponent())
 	{
 		UExponentialHeightFogComponent* C = Fog->GetComponent();
@@ -219,6 +242,7 @@ void AFELevelBuilder::BuildEnvironment()
 	}
 
 	APostProcessVolume* PPV = World->SpawnActor<APostProcessVolume>(FVector::ZeroVector, FRotator::ZeroRotator, Sp);
+	KeepLoaded(PPV);
 	if (PPV)
 	{
 		PPV->bUnbound = true;
@@ -350,6 +374,7 @@ void AFELevelBuilder::BuildHomeBalcony()
 	SpawnBox(FVector(0.05f, 2.35f, 0.0f), FVector(0.12f, 0.12f, 2.0f), Rust, TEXT("HomeDoorFrameTop"));
 
 	AFEInteractable* HomeDoor = GetWorld()->SpawnActor<AFEInteractable>(GPos(1.0f, 1.0f, 0.0f), FRotator::ZeroRotator);
+	KeepLoaded(HomeDoor);
 	if (HomeDoor)
 	{
 		HomeDoor->Kind = EFEInteractKind::HomeGlass;
@@ -372,6 +397,7 @@ void AFELevelBuilder::BuildHomeBalcony()
 	SpawnPointLight(FVector(1.6f, 1.15f, 1.8f), FEPalette::LampPocket, 2500.f, 350.f);
 
 	AFEInteractable* Desk = GetWorld()->SpawnActor<AFEInteractable>(GPos(1.6f, 0.9f, 2.35f), FRotator::ZeroRotator);
+	KeepLoaded(Desk);
 	if (Desk)
 	{
 		Desk->Kind = EFEInteractKind::Desk;
@@ -389,6 +415,7 @@ void AFELevelBuilder::BuildHomeBalcony()
 		SpawnBox(FVector(Hx, 0.42f, -2.3f), FVector(0.32f, 0.22f, 0.32f), FEPalette::HerbSap, *FString::Printf(TEXT("HerbLeaf%d"), i), false);
 	}
 	AFEInteractable* Herbs = GetWorld()->SpawnActor<AFEInteractable>(GPos(1.85f, 0.5f, -2.1f), FRotator::ZeroRotator);
+	KeepLoaded(Herbs);
 	if (Herbs)
 	{
 		Herbs->Kind = EFEInteractKind::Herbs;
@@ -401,6 +428,7 @@ void AFELevelBuilder::BuildHomeBalcony()
 
 	SpawnBox(FVector(1.9f, 0.20f, -1.85f), FVector(0.50f, 0.35f, 0.50f), FEPalette::PottingSoil, TEXT("EmptyPot"));
 	AFEPlantSpot* HomePot = GetWorld()->SpawnActor<AFEPlantSpot>(GPos(1.9f, 0.20f, -1.85f), FRotator::ZeroRotator);
+	KeepLoaded(HomePot);
 	if (HomePot)
 	{
 		HomePot->SpotName = TEXT("home pot");
@@ -441,6 +469,7 @@ void AFELevelBuilder::BuildNeighborBalcony()
 	SpawnBox(FVector(11.05f, 2.35f, 0.0f), FVector(0.12f, 0.12f, 2.0f), Rust, TEXT("NDoorFrameTop"));
 
 	AFEInteractable* Door = GetWorld()->SpawnActor<AFEInteractable>(GPos(10.2f, 1.0f, 0.0f), FRotator::ZeroRotator);
+	KeepLoaded(Door);
 	if (Door)
 	{
 		Door->Kind = EFEInteractKind::NeighborGlass;
@@ -456,6 +485,7 @@ void AFELevelBuilder::BuildNeighborBalcony()
 
 	SpawnBox(FVector(8.2f, 0.20f, -2.0f), FVector(0.55f, 0.35f, 0.55f), FEPalette::PottingSoil, TEXT("PotatoPot"));
 	AFEPlantSpot* Potato = GetWorld()->SpawnActor<AFEPlantSpot>(GPos(8.2f, 0.20f, -2.0f), FRotator::ZeroRotator);
+	KeepLoaded(Potato);
 	if (Potato)
 	{
 		Potato->SpotName = TEXT("potato pot");
@@ -470,6 +500,7 @@ void AFELevelBuilder::BuildNeighborBalcony()
 
 	SpawnBox(FVector(9.2f, 0.20f, -2.0f), FVector(0.55f, 0.35f, 0.55f), FEPalette::PottingSoil, TEXT("TomatoPot"));
 	AFEPlantSpot* Tomato = GetWorld()->SpawnActor<AFEPlantSpot>(GPos(9.2f, 0.20f, -2.0f), FRotator::ZeroRotator);
+	KeepLoaded(Tomato);
 	if (Tomato)
 	{
 		Tomato->SpotName = TEXT("tomato pot");
@@ -487,6 +518,7 @@ void AFELevelBuilder::BuildNeighborBalcony()
 	SpawnBox(FVector(9.8f, 0.85f, 1.5f), FVector(0.35f, 0.05f, 0.25f), FEPalette::CatCream, TEXT("Note"), false);
 	SpawnBox(FVector(9.5f, 0.08f, 1.2f), FVector(0.30f, 0.08f, 0.30f), FLinearColor(0.60f, 0.55f, 0.50f), TEXT("FoodBowl"), false);
 	AFEInteractable* Note = GetWorld()->SpawnActor<AFEInteractable>(GPos(9.8f, 0.9f, 1.5f), FRotator::ZeroRotator);
+	KeepLoaded(Note);
 	if (Note)
 	{
 		Note->Kind = EFEInteractKind::Note;
@@ -499,6 +531,7 @@ void AFELevelBuilder::BuildNeighborBalcony()
 
 	SpawnBox(FVector(7.4f, 0.225f, 1.8f), FVector(1.1f, 0.45f, 0.7f), FLinearColor(0.35f, 0.45f, 0.30f), TEXT("PlanterBoxMesh"));
 	AFELootContainer* Planter = GetWorld()->SpawnActor<AFELootContainer>(GPos(7.4f, 0.25f, 1.8f), FRotator::ZeroRotator);
+	KeepLoaded(Planter);
 	if (Planter)
 	{
 		Planter->ContainerName = TEXT("planter box");
@@ -512,6 +545,7 @@ void AFELevelBuilder::BuildNeighborBalcony()
 
 	SpawnBox(FVector(8.8f, 0.35f, 2.0f), FVector(0.7f, 0.7f, 0.55f), FLinearColor(0.55f, 0.58f, 0.62f), TEXT("PlasticDrawerMesh"));
 	AFELootContainer* Drawer = GetWorld()->SpawnActor<AFELootContainer>(GPos(8.8f, 0.35f, 2.0f), FRotator::ZeroRotator);
+	KeepLoaded(Drawer);
 	if (Drawer)
 	{
 		Drawer->ContainerName = TEXT("plastic drawer");
@@ -525,6 +559,7 @@ void AFELevelBuilder::BuildNeighborBalcony()
 
 	SpawnBox(FVector(10.2f, 0.20f, 1.6f), FVector(0.7f, 0.4f, 0.4f), FLinearColor(0.55f, 0.32f, 0.18f), TEXT("RustedToolboxMesh"));
 	AFELootContainer* Toolbox = GetWorld()->SpawnActor<AFELootContainer>(GPos(10.2f, 0.20f, 1.6f), FRotator::ZeroRotator);
+	KeepLoaded(Toolbox);
 	if (Toolbox)
 	{
 		Toolbox->ContainerName = TEXT("rusted toolbox");
@@ -545,6 +580,7 @@ AFEEmber* AFELevelBuilder::SpawnEmber(const FVector& GodotPos)
 	FActorSpawnParameters Sp;
 	Sp.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	AFEEmber* Cat = GetWorld()->SpawnActor<AFEEmber>(GPos(GodotPos.X, GodotPos.Y, GodotPos.Z), FRotator(0.f, 180.f, 0.f), Sp);
+	KeepLoaded(Cat);
 	if (Cat)
 	{
 #if WITH_EDITOR
@@ -566,6 +602,7 @@ void AFELevelBuilder::BuildFireEscape()
 		SpawnBox(FVector(5.3f, -0.2f - static_cast<float>(i) * 0.55f, 3.9f), FVector(0.90f, 0.06f, 0.06f), Metal, *FString::Printf(TEXT("FEStep%d"), i));
 	}
 	AFEInteractable* FE = GetWorld()->SpawnActor<AFEInteractable>(GPos(5.3f, 0.8f, 3.4f), FRotator::ZeroRotator);
+	KeepLoaded(FE);
 	if (FE)
 	{
 		FE->Kind = EFEInteractKind::FireEscape;

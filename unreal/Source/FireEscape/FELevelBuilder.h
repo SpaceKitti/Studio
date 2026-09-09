@@ -19,7 +19,10 @@ class FIREESCAPE_API AFELevelBuilder : public AActor
 public:
 	AFELevelBuilder();
 
+	UFUNCTION(BlueprintCallable, CallInEditor, Category = "Fire Escape")
 	void BuildNow();
+
+	bool IsBuilt() const { return bBuilt; }
 
 	void OnHomeGlassOpened(APawn* Actor);
 	void OnNeighborGlassOpened(APawn* Actor);
@@ -64,5 +67,6 @@ private:
 	UPROPERTY()
 	TObjectPtr<AStaticMeshActor> NeighborGlass;
 
+	UPROPERTY()
 	bool bBuilt = false;
 };

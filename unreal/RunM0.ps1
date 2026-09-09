@@ -13,4 +13,4 @@ Write-Host "Building FireEscapeEditor (Development Win64)..."
 if ($LASTEXITCODE -ne 0) { throw "Build failed with code $LASTEXITCODE" }
 
 Write-Host "Launching M0 (game viewport)..."
-& $Editor $Project "/Engine/Maps/Templates/Template_Default" -game -windowed -log
+& $Editor $Project "/Game/Maps/M0_FireEscape" -game -windowed -log

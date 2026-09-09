@@ -47,10 +47,12 @@ Or compile then PIE:
 
 ```powershell
 & 'C:\Program Files\Epic Games\UE_5.8\Engine\Build\BatchFiles\Build.bat' FireEscapeEditor Win64 Development -Project='C:\Users\Akitt\Games\Studio\unreal\FireEscape.uproject' -WaitMutex
-& 'C:\Program Files\Epic Games\UE_5.8\Engine\Binaries\Win64\UnrealEditor.exe' 'C:\Users\Akitt\Games\Studio\unreal\FireEscape.uproject' /Engine/Maps/Templates/Template_Default -game -windowed
+& 'C:\Program Files\Epic Games\UE_5.8\Engine\Binaries\Win64\UnrealEditor.exe' 'C:\Users\Akitt\Games\Studio\unreal\FireEscape.uproject' /Game/Maps/M0_FireEscape -game -windowed
 ```
 
-Editor: open `unreal/FireEscape.uproject` → Play.
+Editor: open `unreal/FireEscape.uproject` → map **`Content/Maps/M0_FireEscape`** → Play.
+
+If the viewport is empty, the wrong map is open (`NewMap` is a blank leftover). File → Open Level → `Maps/M0_FireEscape`. If the Outliner has `FELevelBuilder` but no balcony meshes, select it → Details → **Build Now**.
 
 ### Controls
 
