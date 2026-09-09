@@ -2,6 +2,8 @@
 
 Source of truth: [`GAME_DESIGN.md`](GAME_DESIGN.md). This document records **what ships** and **how to run**.
 
+> **Engine (2026-09-09):** playable M0 is Unreal 5.8 under `unreal/`. See [`MILESTONE_0_UNREAL.md`](MILESTONE_0_UNREAL.md). Godot `slice1/` below is the systems reference; do not keep working in Godot.
+
 > **Layout note (Akitti):** Ember is freed at **neighbor** sliding glass. GAME_DESIGN glass-on-home was wrong vs Akitti — cat belongs to the neighbor.
 
 ## What ships

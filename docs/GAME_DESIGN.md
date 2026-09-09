@@ -2,7 +2,8 @@
 # Genre: 3D semi-open vertical survival-craft
 # Setting: post-collapse cyberpunk city. Neon still works. Viruses still exist.
 # Infected exist later. Not this milestone.
-# Engine: Godot 4.x 3D. Perspective: third-person (or first; pick one and freeze it).
+# Engine: Unreal Engine 5.8 (current). Godot 4.x slice1/ is systems reference only.
+# Perspective: first-person (FOV 65). Frozen.
 # Protagonist: unnamed engineering intern (she). Incomplete knowledge. Can assemble from kits, not invent from first principles.
 
 ## Pillars

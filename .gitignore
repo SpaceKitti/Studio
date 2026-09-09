@@ -102,3 +102,15 @@ slice1_incomplete_cache_bak/
 .git_push_token.tmp
 *.tar.gz
 
+# Unreal Engine 5 (keep Source / Config / Content/Icons)
+unreal/Binaries/
+unreal/DerivedDataCache/
+unreal/Intermediate/
+unreal/Saved/
+unreal/.vs/
+unreal/FileOpenOrder/
+unreal/*.vsconfig
+unreal/*.code-workspace
+unreal/Content/Developers/
+unreal/Content/Collections/
+
