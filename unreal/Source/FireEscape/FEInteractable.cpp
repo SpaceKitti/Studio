@@ -32,13 +32,13 @@ FString AFEInteractable::GetPrompt() const
 	if (Kind == EFEInteractKind::HomeGlass)
 	{
 		return bGlassOpen
-			? TEXT("[E] Home apartment (blocked — M1)")
+			? TEXT("[E] Walk into home apartment")
 			: TEXT("[E] Open home sliding glass");
 	}
 	if (Kind == EFEInteractKind::NeighborGlass)
 	{
 		return bGlassOpen
-			? TEXT("[E] Neighbor apartment (blocked — M1)")
+			? TEXT("[E] Walk into neighbor apartment")
 			: PromptText;
 	}
 	return PromptText;
@@ -85,7 +85,7 @@ FString AFEInteractable::OpenNeighborGlass(APawn* Actor)
 	if (!bGlassOpen)
 	{
 		bGlassOpen = true;
-		PromptText = TEXT("[E] Neighbor apartment (blocked — M1)");
+		PromptText = TEXT("[E] Walk into neighbor apartment");
 		if (Level)
 		{
 			Level->OnNeighborGlassOpened(Actor);
@@ -94,9 +94,9 @@ FString AFEInteractable::OpenNeighborGlass(APawn* Actor)
 		{
 			Game->MarkCat();
 		}
-		return TEXT("Neighbor sliding glass opens. Ember bolts onto their balcony. Adopted. Interior stays dark until M1.");
+		return TEXT("Neighbor sliding glass opens. Ember bolts onto the balcony. Their apartment is open.");
 	}
-	return TEXT("Neighbor apartment is dark — blocked for Milestone 0.");
+	return TEXT("Neighbor apartment is open — walk through the glass.");
 }
 
 FString AFEInteractable::OpenHomeGlass(APawn* Actor)
@@ -118,9 +118,9 @@ FString AFEInteractable::OpenHomeGlass(APawn* Actor)
 		{
 			Level->OnHomeGlassOpened(Actor);
 		}
-		return TEXT("Home sliding glass opens. Your apartment is a black volume until Milestone 1.");
+		return TEXT("Home sliding glass opens. Your apartment is open.");
 	}
-	return TEXT("Home apartment is dark — blocked for Milestone 0.");
+	return TEXT("Home apartment is open — walk through the glass.");
 }
 
 FString AFEInteractable::UseDesk()

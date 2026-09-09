@@ -20,6 +20,40 @@ def main():
     log("BEGIN")
 
     asset_tools = unreal.AssetToolsHelpers.get_asset_tools()
+
+    def make_glass():
+        path = "/Game/Materials/M_Glass"
+        if unreal.EditorAssetLibrary.does_asset_exist(path):
+            log("M_Glass exists")
+            return
+        factory = unreal.MaterialFactoryNew()
+        mat = asset_tools.create_asset("M_Glass", "/Game/Materials", unreal.Material, factory)
+        if mat is None:
+            log("FAILED to create M_Glass")
+            return
+        mat.set_editor_property("blend_mode", unreal.BlendMode.BLEND_TRANSLUCENT)
+        mat.set_editor_property("two_sided", True)
+        try:
+            mat.set_editor_property("translucency_lighting_mode", unreal.TranslucencyLightingMode.TLM_SURFACE_PER_PIXEL_LIGHTING)
+        except Exception as exc:
+            log("translucency mode skip: %s" % exc)
+        base = unreal.MaterialEditingLibrary.create_material_expression(mat, unreal.MaterialExpressionConstant3Vector, -380, -120)
+        base.set_editor_property("constant", unreal.LinearColor(0.66, 0.77, 0.83, 1.0))
+        unreal.MaterialEditingLibrary.connect_material_property(base, "", unreal.MaterialProperty.MP_BASE_COLOR)
+        spec = unreal.MaterialEditingLibrary.create_material_expression(mat, unreal.MaterialExpressionConstant, -380, 40)
+        spec.set_editor_property("r", 0.65)
+        unreal.MaterialEditingLibrary.connect_material_property(spec, "", unreal.MaterialProperty.MP_SPECULAR)
+        rough = unreal.MaterialEditingLibrary.create_material_expression(mat, unreal.MaterialExpressionConstant, -380, 120)
+        rough.set_editor_property("r", 0.06)
+        unreal.MaterialEditingLibrary.connect_material_property(rough, "", unreal.MaterialProperty.MP_ROUGHNESS)
+        opac = unreal.MaterialEditingLibrary.create_material_expression(mat, unreal.MaterialExpressionConstant, -380, 200)
+        opac.set_editor_property("r", 0.22)
+        unreal.MaterialEditingLibrary.connect_material_property(opac, "", unreal.MaterialProperty.MP_OPACITY)
+        unreal.MaterialEditingLibrary.recompile_material(mat)
+        unreal.EditorAssetLibrary.save_asset(path)
+        log("created M_Glass")
+
+    make_glass()
     level_editor = unreal.get_editor_subsystem(unreal.LevelEditorSubsystem)
     actor_sub = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
     editor_sub = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
@@ -83,7 +117,7 @@ def main():
             n_tag += 1
         if isinstance(actor, unreal.StaticMeshActor):
             n_sm += 1
-        if isinstance(actor, (unreal.FEInteractable, unreal.FELootContainer, unreal.FEPlantSpot, unreal.FEEmber)):
+        if isinstance(actor, (unreal.FEInteractable, unreal.FELootContainer, unreal.FEPlantSpot, unreal.FEEmber, unreal.FEWaterFixture)):
             n_int += 1
     log("ACTOR_COUNT %d" % len(actors))
     log("STATIC_MESH_COUNT %d" % n_sm)
@@ -93,8 +127,8 @@ def main():
 
     try:
         unreal.EditorLevelLibrary.set_level_viewport_camera_info(
-            unreal.Vector(300.0, -420.0, 180.0),
-            unreal.Rotator(-8.0, 90.0, 0.0),
+            unreal.Vector(180.0, 40.0, 150.0),
+            unreal.Rotator(-6.0, 180.0, 0.0),
         )
         log("viewport camera set")
     except Exception as exc:

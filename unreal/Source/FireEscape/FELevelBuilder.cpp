@@ -4,6 +4,8 @@
 #include "FELootContainer.h"
 #include "FEPlantSpot.h"
 #include "FEEmber.h"
+#include "FEWaterFixture.h"
+#include "FELootContainer.h"
 #include "Engine/World.h"
 #include "Engine/StaticMeshActor.h"
 #include "Engine/StaticMesh.h"
@@ -109,6 +111,7 @@ void AFELevelBuilder::BuildNow()
 				|| A->IsA(AStaticMeshActor::StaticClass())
 				|| A->IsA(ADirectionalLight::StaticClass())
 				|| A->IsA(ASkyLight::StaticClass())
+				|| A->IsA(ASkyAtmosphere::StaticClass())
 				|| A->IsA(AExponentialHeightFog::StaticClass())
 				|| A->IsA(APostProcessVolume::StaticClass()))
 			{
@@ -123,7 +126,14 @@ void AFELevelBuilder::BuildNow()
 
 	CubeMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube.Cube"));
 	SphereMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Sphere.Sphere"));
+	CylinderMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cylinder.Cylinder"));
+	ChamferMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Game/LevelPrototyping/Meshes/SM_ChamferCube.SM_ChamferCube"));
+	if (!ChamferMesh)
+	{
+		ChamferMesh = CubeMesh;
+	}
 	ShapeMat = LoadObject<UMaterialInterface>(nullptr, TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"));
+	GlassMat = LoadObject<UMaterialInterface>(nullptr, TEXT("/Game/Materials/M_Glass.M_Glass"));
 	if (!ShapeMat)
 	{
 		ShapeMat = LoadObject<UMaterialInterface>(nullptr, TEXT("/Engine/EngineMaterials/DefaultMaterial.DefaultMaterial"));
@@ -134,6 +144,8 @@ void AFELevelBuilder::BuildNow()
 	BuildBuildingMass();
 	BuildHomeBalcony();
 	BuildNeighborBalcony();
+	BuildApartment(0.0f, -1, true);
+	BuildApartment(11.1f, 1, false);
 	BuildFireEscape();
 	BuildGapMarkers();
 
@@ -207,6 +219,102 @@ AStaticMeshActor* AFELevelBuilder::SpawnBox(const FVector& GodotPos, const FVect
 	Actor->SetFolderPath(FName(TEXT("M0")));
 #endif
 	return Actor;
+}
+
+AStaticMeshActor* AFELevelBuilder::SpawnMesh(UStaticMesh* MeshAsset, const FVector& GodotPos, const FVector& GodotSize, const FLinearColor& Color, const FName& Name, bool bCollision, bool bGlass)
+{
+	if (!MeshAsset)
+	{
+		return SpawnBox(GodotPos, GodotSize, Color, Name, bCollision);
+	}
+	FActorSpawnParameters Sp;
+	Sp.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	AStaticMeshActor* Actor = GetWorld()->SpawnActor<AStaticMeshActor>(GPos(GodotPos.X, GodotPos.Y, GodotPos.Z), FRotator::ZeroRotator, Sp);
+	if (!Actor)
+	{
+		return nullptr;
+	}
+	UStaticMeshComponent* Mesh = Actor->GetStaticMeshComponent();
+	Mesh->SetMobility(EComponentMobility::Movable);
+	Mesh->SetStaticMesh(MeshAsset);
+	Mesh->SetWorldScale3D(GScale(GodotSize.X, GodotSize.Y, GodotSize.Z));
+	if (bGlass)
+	{
+		ApplyGlass(Actor);
+	}
+	else if (UMaterialInstanceDynamic* MID = MakeMat(Color, false, 0.f))
+	{
+		Mesh->SetMaterial(0, MID);
+	}
+	Mesh->SetCollisionEnabled(bCollision ? ECollisionEnabled::QueryAndPhysics : ECollisionEnabled::NoCollision);
+	Mesh->SetCastShadow(bCollision && !bGlass);
+	if (bCollision)
+	{
+		Mesh->SetCollisionObjectType(ECC_WorldStatic);
+		Mesh->SetCollisionResponseToAllChannels(ECR_Block);
+	}
+	Actor->Tags.Add(FName(TEXT("FE_M0")));
+	Actor->SetIsSpatiallyLoaded(false);
+#if WITH_EDITOR
+	Actor->SetActorLabel(Name.ToString());
+	Actor->SetFolderPath(FName(TEXT("M0")));
+#endif
+	return Actor;
+}
+
+void AFELevelBuilder::ApplyGlass(AStaticMeshActor* Actor)
+{
+	if (!Actor)
+	{
+		return;
+	}
+	UStaticMeshComponent* Mesh = Actor->GetStaticMeshComponent();
+	if (GlassMat)
+	{
+		Mesh->SetMaterial(0, GlassMat);
+	}
+	else if (UMaterialInstanceDynamic* MID = MakeMat(FEPalette::BalconyGlass, false, 0.f))
+	{
+		Mesh->SetMaterial(0, MID);
+	}
+	Mesh->SetCastShadow(false);
+}
+
+AFELootContainer* AFELevelBuilder::AddLoot(const FVector& GodotPos, const FString& Name, const TArray<FName>& Ids, const TArray<int32>& Counts, const FVector& Extent)
+{
+	AFELootContainer* Box = GetWorld()->SpawnActor<AFELootContainer>(GPos(GodotPos.X, GodotPos.Y, GodotPos.Z), FRotator::ZeroRotator);
+	KeepLoaded(Box);
+	if (!Box)
+	{
+		return nullptr;
+	}
+	Box->ContainerName = Name;
+	Box->LootIds = Ids;
+	Box->LootCounts = Counts;
+	if (Box->Collision)
+	{
+		Box->Collision->SetBoxExtent(Extent);
+	}
+#if WITH_EDITOR
+	Box->SetActorLabel(*Name);
+#endif
+	return Box;
+}
+
+AFEWaterFixture* AFELevelBuilder::AddWater(const FVector& GodotPos, const FString& Name, EFEWaterKind Kind)
+{
+	AFEWaterFixture* Fix = GetWorld()->SpawnActor<AFEWaterFixture>(GPos(GodotPos.X, GodotPos.Y, GodotPos.Z), FRotator::ZeroRotator);
+	KeepLoaded(Fix);
+	if (!Fix)
+	{
+		return nullptr;
+	}
+	Fix->FixtureName = Name;
+	Fix->WaterKind = Kind;
+#if WITH_EDITOR
+	Fix->SetActorLabel(*Name);
+#endif
+	return Fix;
 }
 
 APointLight* AFELevelBuilder::SpawnPointLight(const FVector& GodotPos, const FLinearColor& Color, float Intensity, float RadiusCm)
@@ -368,29 +476,22 @@ void AFELevelBuilder::BuildBuildingMass()
 	const FLinearColor Asphalt = FEPalette::WetAsphalt;
 	const FLinearColor Stucco = FEPalette::Stucco;
 
-	// Home building face sits behind the glass (negative X). Must not overlap the balcony slab.
-	SpawnBox(FVector(-2.4f, 1.4f, 0.0f), FVector(2.2f, 4.6f, 7.2f), Asphalt, TEXT("HomeMass"));
-	SpawnBox(FVector(-2.4f, 3.6f, 0.0f), FVector(2.4f, 0.3f, 7.4f), Stucco, TEXT("HomeCornice"), true, 0.7f);
-	SpawnBox(FVector(-1.2f, 1.4f, -3.5f), FVector(0.3f, 3.2f, 0.4f), Stucco, TEXT("HomePilasterS"));
-	SpawnBox(FVector(-1.2f, 1.4f, 3.5f), FVector(0.3f, 3.2f, 0.4f), Stucco, TEXT("HomePilasterN"));
+	// Facade around home glass only — apartment rooms are hollow behind this.
+	SpawnBox(FVector(-0.12f, 1.4f, -2.15f), FVector(0.24f, 2.8f, 2.4f), Stucco, TEXT("HomeFaceS"));
+	SpawnBox(FVector(-0.12f, 1.4f, 2.15f), FVector(0.24f, 2.8f, 2.4f), Stucco, TEXT("HomeFaceN"));
+	SpawnBox(FVector(-0.12f, 2.55f, 0.0f), FVector(0.24f, 0.5f, 1.9f), Asphalt, TEXT("HomeFaceLintel"));
+	SpawnBox(FVector(-3.6f, 3.55f, 0.0f), FVector(7.4f, 0.22f, 7.4f), Stucco, TEXT("HomeCornice"), true, 0.7f);
 
-	// Plug the glass opening so M0 cannot walk into a fake interior.
-	SpawnBox(FVector(-0.55f, 1.15f, 0.0f), FVector(0.35f, 2.4f, 1.9f), FEPalette::NightSlate, TEXT("HomeVoid"));
+	SpawnBox(FVector(11.22f, 1.5f, -(0.95f + 1.05f)), FVector(0.24f, 3.2f, 2.1f), Asphalt, TEXT("NeighborWallS"));
+	SpawnBox(FVector(11.22f, 1.5f, (0.95f + 1.05f)), FVector(0.24f, 3.2f, 2.1f), Asphalt, TEXT("NeighborWallN"));
+	SpawnBox(FVector(11.22f, 2.85f, 0.0f), FVector(0.24f, 0.7f, 1.9f), Asphalt, TEXT("NeighborWallTop"));
+	SpawnBox(FVector(14.7f, 3.55f, 0.0f), FVector(7.4f, 0.22f, 7.4f), Stucco, TEXT("NeighborCornice"), true, 0.7f);
 
-	// Neighbor building face
-	SpawnBox(FVector(13.0f, 1.4f, 0.0f), FVector(3.4f, 4.6f, 7.2f), Asphalt, TEXT("NeighborMass"));
-	SpawnBox(FVector(13.0f, 3.6f, 0.0f), FVector(3.6f, 0.3f, 7.4f), Stucco, TEXT("NeighborCornice"), true, 0.7f);
-	SpawnBox(FVector(11.35f, 1.5f, -(0.95f + 1.05f)), FVector(0.3f, 3.2f, 2.1f), Asphalt, TEXT("NeighborWallS"));
-	SpawnBox(FVector(11.35f, 1.5f, (0.95f + 1.05f)), FVector(0.3f, 3.2f, 2.1f), Asphalt, TEXT("NeighborWallN"));
-	SpawnBox(FVector(11.35f, 2.85f, 0.0f), FVector(0.3f, 0.7f, 1.9f), Asphalt, TEXT("NeighborWallTop"));
-	SpawnBox(FVector(12.4f, 1.15f, 0.0f), FVector(0.5f, 2.4f, 2.0f), FEPalette::NightSlate, TEXT("NeighborVoid"));
-
-	// Vertical stack hint (floors above)
 	for (int32 F = 1; F <= 2; ++F)
 	{
 		const float Y = 4.2f + static_cast<float>(F) * 3.2f;
-		SpawnBox(FVector(-2.4f, Y, 0.0f), FVector(2.2f, 3.0f, 7.2f), Asphalt, *FString::Printf(TEXT("HomeStack%d"), F), false);
-		SpawnBox(FVector(13.0f, Y, 0.0f), FVector(3.4f, 3.0f, 7.2f), Asphalt, *FString::Printf(TEXT("NStack%d"), F), false);
+		SpawnBox(FVector(-3.6f, Y, 0.0f), FVector(7.2f, 3.0f, 7.2f), Asphalt, *FString::Printf(TEXT("HomeStack%d"), F), false);
+		SpawnBox(FVector(14.7f, Y, 0.0f), FVector(7.2f, 3.0f, 7.2f), Asphalt, *FString::Printf(TEXT("NStack%d"), F), false);
 		SpawnBox(FVector(-1.25f, Y, 1.4f), FVector(0.08f, 1.1f, 0.7f), FEPalette::SodiumDusk, *FString::Printf(TEXT("HomeWin%d"), F), false, 0.3f, true, 2.5f);
 		SpawnBox(FVector(11.2f, Y, -1.2f), FVector(0.08f, 1.1f, 0.7f), FEPalette::CyanRig, *FString::Printf(TEXT("NWin%d"), F), false, 0.3f, true, 2.5f);
 	}
@@ -419,6 +520,7 @@ void AFELevelBuilder::BuildHomeBalcony()
 	SpawnPointLight(FVector(2.1f, 0.95f, -2.7f), FEPalette::CyanShock, 5000.f, 500.f);
 
 	HomeGlass = SpawnBox(FVector(0.05f, 1.15f, 0.0f), FVector(0.06f, 2.3f, 1.8f), FEPalette::BalconyGlass, TEXT("HomeSlidingGlass"), true, 0.05f);
+	ApplyGlass(HomeGlass);
 	SpawnBox(FVector(0.05f, 1.25f, -0.95f), FVector(0.12f, 2.5f, 0.12f), Rust, TEXT("HomeDoorFrameL"));
 	SpawnBox(FVector(0.05f, 1.25f, 0.95f), FVector(0.12f, 2.5f, 0.12f), Rust, TEXT("HomeDoorFrameR"));
 	SpawnBox(FVector(0.05f, 2.35f, 0.0f), FVector(0.12f, 0.12f, 2.0f), Rust, TEXT("HomeDoorFrameTop"));
@@ -514,6 +616,7 @@ void AFELevelBuilder::BuildNeighborBalcony()
 	SpawnPointLight(FVector(8.7f, 0.95f, 2.6f), FEPalette::HotMagenta, 4000.f, 500.f);
 
 	NeighborGlass = SpawnBox(FVector(11.05f, 1.15f, 0.0f), FVector(0.06f, 2.3f, 1.8f), FEPalette::BalconyGlass, TEXT("NeighborSlidingGlass"), true, 0.05f);
+	ApplyGlass(NeighborGlass);
 	SpawnBox(FVector(11.05f, 1.25f, -0.95f), FVector(0.12f, 2.5f, 0.12f), Rust, TEXT("NDoorFrameL"));
 	SpawnBox(FVector(11.05f, 1.25f, 0.95f), FVector(0.12f, 2.5f, 0.12f), Rust, TEXT("NDoorFrameR"));
 	SpawnBox(FVector(11.05f, 2.35f, 0.0f), FVector(0.12f, 0.12f, 2.0f), Rust, TEXT("NDoorFrameTop"));
@@ -668,6 +771,160 @@ void AFELevelBuilder::BuildGapMarkers()
 {
 	SpawnBox(FVector(4.25f, 0.02f, 0.0f), FVector(0.25f, 0.12f, 1.6f), FLinearColor(0.50f, 0.40f, 0.35f), TEXT("GapLipHome"));
 	SpawnBox(FVector(6.35f, 0.02f, 0.0f), FVector(0.25f, 0.12f, 1.6f), FLinearColor(0.50f, 0.40f, 0.35f), TEXT("GapLipNeighbor"));
+}
+
+void AFELevelBuilder::BuildApartment(float OriginX, int32 Facing, bool bHome)
+{
+	const float F = static_cast<float>(Facing);
+	const FString Pre = bHome ? TEXT("Home") : TEXT("Ngb");
+	auto P = [OriginX, F](float LX, float LY, float LZ)
+	{
+		return FVector(OriginX + F * LX, LY, LZ);
+	};
+
+	const FLinearColor FloorCol = FLinearColor(0.45f, 0.34f, 0.26f);
+	const FLinearColor Stucco = FEPalette::Stucco;
+	const FLinearColor Asphalt = FEPalette::WetAsphalt;
+	const FLinearColor Wood = FEPalette::WoodDesk;
+	const FLinearColor Fabric = FLinearColor(0.42f, 0.36f, 0.34f);
+	const FLinearColor Ceramic = FLinearColor(0.78f, 0.80f, 0.82f);
+	const FLinearColor Teal = FEPalette::OxidizedTeal;
+	const FLinearColor Cream = FEPalette::CatCream;
+	UStaticMesh* Soft = ChamferMesh ? ChamferMesh : CubeMesh;
+
+	SpawnBox(P(3.6f, -0.09f, 0.0f), FVector(7.2f, 0.18f, 6.4f), FloorCol, *(Pre + TEXT("Floor")), true, 0.9f);
+	SpawnBox(P(3.6f, 2.72f, 0.0f), FVector(7.2f, 0.12f, 6.4f), Asphalt, *(Pre + TEXT("Ceil")));
+
+	SpawnBox(P(3.6f, 0.50f, -3.21f), FVector(7.2f, 1.00f, 0.18f), Stucco, *(Pre + TEXT("WallSLow")), true, 0.88f);
+	SpawnBox(P(3.6f, 2.42f, -3.21f), FVector(7.2f, 0.60f, 0.18f), Stucco, *(Pre + TEXT("WallSHigh")), true, 0.88f);
+	SpawnBox(P(0.575f, 1.55f, -3.21f), FVector(1.15f, 1.10f, 0.18f), Stucco, *(Pre + TEXT("WallSL")), true, 0.88f);
+	SpawnBox(P(4.725f, 1.55f, -3.21f), FVector(4.95f, 1.10f, 0.18f), Stucco, *(Pre + TEXT("WallSR")), true, 0.88f);
+
+	SpawnBox(P(3.6f, 0.50f, 3.21f), FVector(7.2f, 1.00f, 0.18f), Stucco, *(Pre + TEXT("WallNLow")), true, 0.88f);
+	SpawnBox(P(3.6f, 2.42f, 3.21f), FVector(7.2f, 0.60f, 0.18f), Stucco, *(Pre + TEXT("WallNHigh")), true, 0.88f);
+	SpawnBox(P(0.65f, 1.55f, 3.21f), FVector(1.30f, 1.10f, 0.18f), Stucco, *(Pre + TEXT("WallNL")), true, 0.88f);
+	SpawnBox(P(4.75f, 1.55f, 3.21f), FVector(4.90f, 1.10f, 0.18f), Stucco, *(Pre + TEXT("WallNR")), true, 0.88f);
+
+	SpawnBox(P(7.15f, 1.35f, -2.65f), FVector(0.18f, 2.7f, 1.10f), Asphalt, *(Pre + TEXT("BackS")));
+	SpawnBox(P(7.15f, 1.35f, 0.125f), FVector(0.18f, 2.7f, 2.45f), Asphalt, *(Pre + TEXT("BackM")));
+	SpawnBox(P(7.15f, 1.35f, 2.625f), FVector(0.18f, 2.7f, 1.15f), Asphalt, *(Pre + TEXT("BackN")));
+	SpawnBox(P(7.15f, 0.52f, -1.6f), FVector(0.18f, 1.05f, 1.00f), Asphalt, *(Pre + TEXT("BackBedLow")));
+	SpawnBox(P(7.15f, 2.38f, -1.6f), FVector(0.18f, 0.64f, 1.00f), Asphalt, *(Pre + TEXT("BackBedHigh")));
+	SpawnBox(P(7.15f, 0.57f, 1.7f), FVector(0.18f, 1.15f, 0.70f), Asphalt, *(Pre + TEXT("BackBathLow")));
+	SpawnBox(P(7.15f, 2.28f, 1.7f), FVector(0.18f, 0.84f, 0.70f), Asphalt, *(Pre + TEXT("BackBathHigh")));
+
+	// Living | back rooms partition with a 2m doorway on z=0
+	SpawnBox(P(3.4f, 1.3f, -2.2f), FVector(0.12f, 2.6f, 2.0f), Asphalt, *(Pre + TEXT("PartS")));
+	SpawnBox(P(3.4f, 1.3f, 2.2f), FVector(0.12f, 2.6f, 2.0f), Asphalt, *(Pre + TEXT("PartN")));
+	SpawnBox(P(3.4f, 2.4f, 0.0f), FVector(0.12f, 0.4f, 2.0f), Asphalt, *(Pre + TEXT("PartLintel")));
+
+	// Bedroom | bath wall with doorway
+	SpawnBox(P(4.4f, 1.3f, 0.0f), FVector(1.6f, 2.6f, 0.12f), Asphalt, *(Pre + TEXT("BathWallA")));
+	SpawnBox(P(6.4f, 1.3f, 0.0f), FVector(1.6f, 2.6f, 0.12f), Asphalt, *(Pre + TEXT("BathWallB")));
+	SpawnBox(P(5.4f, 2.4f, 0.0f), FVector(1.6f, 0.4f, 0.12f), Asphalt, *(Pre + TEXT("BathLintel")));
+
+	auto WindowOnZ = [&](float LX, float LY, float LZ, float W, float H, const FName& Name)
+	{
+		SpawnBox(P(LX, LY, LZ), FVector(W + 0.12f, 0.08f, 0.08f), FEPalette::Rust, *(Name.ToString() + TEXT("Sill")), false);
+		SpawnBox(P(LX - W * 0.5f, LY + H * 0.5f, LZ), FVector(0.08f, H, 0.08f), FEPalette::Rust, *(Name.ToString() + TEXT("FrL")), false);
+		SpawnBox(P(LX + W * 0.5f, LY + H * 0.5f, LZ), FVector(0.08f, H, 0.08f), FEPalette::Rust, *(Name.ToString() + TEXT("FrR")), false);
+		SpawnBox(P(LX, LY + H, LZ), FVector(W + 0.12f, 0.08f, 0.08f), FEPalette::Rust, *(Name.ToString() + TEXT("Head")), false);
+		AStaticMeshActor* Pane = SpawnBox(P(LX, LY + H * 0.5f, LZ), FVector(W - 0.04f, H - 0.04f, 0.04f), FEPalette::BalconyGlass, Name, false);
+		ApplyGlass(Pane);
+	};
+	auto WindowOnX = [&](float LX, float LY, float LZ, float W, float H, const FName& Name)
+	{
+		SpawnBox(P(LX, LY, LZ), FVector(0.08f, 0.08f, W + 0.12f), FEPalette::Rust, *(Name.ToString() + TEXT("Sill")), false);
+		SpawnBox(P(LX, LY + H * 0.5f, LZ - W * 0.5f), FVector(0.08f, H, 0.08f), FEPalette::Rust, *(Name.ToString() + TEXT("FrL")), false);
+		SpawnBox(P(LX, LY + H * 0.5f, LZ + W * 0.5f), FVector(0.08f, H, 0.08f), FEPalette::Rust, *(Name.ToString() + TEXT("FrR")), false);
+		SpawnBox(P(LX, LY + H, LZ), FVector(0.08f, 0.08f, W + 0.12f), FEPalette::Rust, *(Name.ToString() + TEXT("Head")), false);
+		AStaticMeshActor* Pane = SpawnBox(P(LX, LY + H * 0.5f, LZ), FVector(0.04f, H - 0.04f, W - 0.04f), FEPalette::BalconyGlass, Name, false);
+		ApplyGlass(Pane);
+	};
+	WindowOnZ(1.7f, 1.0f, -3.12f, 1.1f, 1.1f, *(Pre + TEXT("LivWinS")));
+	WindowOnZ(1.8f, 1.0f, 3.12f, 1.0f, 1.0f, *(Pre + TEXT("KitWin")));
+	WindowOnX(7.08f, 1.05f, -1.6f, 1.0f, 1.05f, *(Pre + TEXT("BedWin")));
+	WindowOnX(7.08f, 1.15f, 1.7f, 0.7f, 0.7f, *(Pre + TEXT("BathWin")));
+
+	SpawnPointLight(P(1.6f, 2.05f, 0.1f), FEPalette::LampPocket, 22000.f, 550.f);
+	SpawnPointLight(P(1.8f, 2.15f, 2.3f), FLinearColor(0.55f, 0.78f, 0.88f), 9000.f, 400.f);
+	SpawnPointLight(P(5.2f, 1.7f, -1.8f), FEPalette::LampPocket, 7000.f, 350.f);
+	SpawnPointLight(P(5.8f, 2.1f, 1.5f), FLinearColor(0.5f, 0.75f, 0.85f), 8000.f, 380.f);
+
+	SpawnMesh(Soft, P(1.5f, 0.28f, 0.85f), FVector(1.7f, 0.45f, 0.7f), Fabric, *(Pre + TEXT("Sofa")));
+	SpawnMesh(Soft, P(1.7f, 0.18f, -0.7f), FVector(0.9f, 0.32f, 0.5f), Wood, *(Pre + TEXT("Coffee")));
+	SpawnBox(P(1.55f, 0.36f, -0.62f), FVector(0.22f, 0.02f, 0.16f), Cream, *(Pre + TEXT("PaperA")), false);
+	SpawnBox(P(1.85f, 0.36f, -0.8f), FVector(0.18f, 0.02f, 0.14f), Cream, *(Pre + TEXT("PaperB")), false);
+	if (!bHome)
+	{
+		AStaticMeshActor* Chair = SpawnMesh(Soft, P(2.2f, 0.32f, 0.15f), FVector(0.4f, 0.55f, 0.4f), FLinearColor(0.35f, 0.3f, 0.28f), *(Pre + TEXT("AskewChair")));
+		if (Chair)
+		{
+			Chair->SetActorRotation(FRotator(0.f, 38.f, 8.f));
+		}
+	}
+	else
+	{
+		SpawnMesh(Soft, P(2.2f, 0.32f, 0.15f), FVector(0.4f, 0.55f, 0.4f), FLinearColor(0.4f, 0.35f, 0.32f), *(Pre + TEXT("Chair")));
+	}
+
+	SpawnMesh(Soft, P(1.7f, 0.45f, 2.5f), FVector(2.1f, 0.9f, 0.55f), Stucco, *(Pre + TEXT("Counter")));
+	SpawnBox(P(1.1f, 0.95f, 2.5f), FVector(0.5f, 0.08f, 0.35f), Teal, *(Pre + TEXT("FixStrip")), true, 0.35f);
+	SpawnMesh(CylinderMesh, P(1.45f, 1.05f, 2.42f), FVector(0.08f, 0.28f, 0.08f), FLinearColor(0.55f, 0.7f, 0.75f), *(Pre + TEXT("BottleA")), false);
+	SpawnMesh(CylinderMesh, P(1.6f, 1.02f, 2.5f), FVector(0.08f, 0.22f, 0.08f), FLinearColor(0.5f, 0.65f, 0.7f), *(Pre + TEXT("BottleB")), false);
+	SpawnBox(P(2.05f, 0.98f, 2.5f), FVector(0.28f, 0.14f, 0.28f), FLinearColor(0.4f, 0.42f, 0.45f), *(Pre + TEXT("FillPot")));
+	SpawnBox(P(1.15f, 0.98f, 2.55f), FVector(0.55f, 0.12f, 0.4f), Ceramic, *(Pre + TEXT("KitSink")));
+	SpawnMesh(CylinderMesh, P(1.15f, 1.18f, 2.4f), FVector(0.07f, 0.22f, 0.07f), Teal, *(Pre + TEXT("KitFaucet")), false);
+	AddWater(P(1.15f, 0.98f, 2.55f), TEXT("Kitchen sink"), EFEWaterKind::Sink);
+
+	SpawnBox(P(2.55f, 0.7f, 2.55f), FVector(0.85f, 1.4f, 0.5f), FLinearColor(0.5f, 0.48f, 0.45f), *(Pre + TEXT("Cupboard")));
+	if (bHome)
+	{
+		AddLoot(P(2.55f, 0.7f, 2.55f), TEXT("kitchen cupboard"), {TEXT("water_bottle"), TEXT("tuna_can"), TEXT("flour_sr")}, {1, 1, 1}, FVector(50.f, 40.f, 80.f));
+	}
+	else
+	{
+		AddLoot(P(2.55f, 0.7f, 2.55f), TEXT("kitchen cupboard"), {TEXT("watering_can"), TEXT("salt"), TEXT("water_bottle")}, {1, 1, 1}, FVector(50.f, 40.f, 80.f));
+	}
+	SpawnBox(P(0.9f, 0.45f, 2.45f), FVector(0.55f, 0.7f, 0.45f), FLinearColor(0.38f, 0.36f, 0.34f), *(Pre + TEXT("UnderSink")));
+	AddLoot(P(0.9f, 0.45f, 2.45f), TEXT("under-sink cabinet"), {TEXT("water_bottle")}, {1}, FVector(40.f, 35.f, 45.f));
+
+	SpawnMesh(Soft, P(5.2f, 0.22f, -2.0f), FVector(1.7f, 0.35f, 1.05f), Cream, *(Pre + TEXT("Bed")));
+	SpawnBox(P(5.2f, 0.42f, -2.0f), FVector(1.55f, 0.12f, 0.9f), FLinearColor(0.88f, 0.84f, 0.76f), *(Pre + TEXT("Linens")));
+	SpawnBox(P(4.55f, 0.48f, -1.7f), FVector(0.28f, 0.1f, 0.32f), Cream, *(Pre + TEXT("PillowA")), false);
+	SpawnBox(P(4.55f, 0.48f, -2.25f), FVector(0.28f, 0.1f, 0.32f), Cream, *(Pre + TEXT("PillowB")), false);
+	SpawnBox(P(6.15f, 0.28f, -2.35f), FVector(0.4f, 0.5f, 0.4f), Wood, *(Pre + TEXT("Nightstand")));
+	SpawnMesh(CylinderMesh, P(6.05f, 0.58f, -2.25f), FVector(0.07f, 0.1f, 0.07f), FLinearColor(0.75f, 0.7f, 0.65f), *(Pre + TEXT("MugA")), false);
+	SpawnMesh(CylinderMesh, P(6.2f, 0.58f, -2.4f), FVector(0.07f, 0.1f, 0.07f), FLinearColor(0.7f, 0.55f, 0.45f), *(Pre + TEXT("MugB")), false);
+	const FVector CasePos = bHome ? P(4.3f, 0.14f, -1.15f) : P(4.0f, 0.14f, -1.35f);
+	SpawnBox(CasePos, FVector(0.7f, 0.18f, 0.45f), FLinearColor(0.35f, 0.28f, 0.22f), *(Pre + TEXT("Suitcase")));
+	AStaticMeshActor* Lid = SpawnBox(CasePos + FVector(0.f, 0.2f, 0.f), FVector(0.68f, 0.06f, 0.42f), FLinearColor(0.4f, 0.32f, 0.26f), *(Pre + TEXT("CaseLid")));
+	if (Lid)
+	{
+		Lid->SetActorRotation(FRotator(bHome ? -55.f : -70.f, 0.f, bHome ? 0.f : 12.f));
+	}
+
+	SpawnBox(P(6.35f, 0.95f, -2.0f), FVector(0.7f, 1.9f, 0.45f), Wood, *(Pre + TEXT("Wardrobe")));
+	AddLoot(P(6.35f, 0.95f, -2.0f), TEXT("wardrobe"), bHome ? TArray<FName>{TEXT("salt")} : TArray<FName>{TEXT("tuna_can")}, {1}, FVector(40.f, 35.f, 100.f));
+	SpawnBox(P(5.5f, 0.28f, -0.7f), FVector(0.7f, 0.45f, 0.45f), Wood, *(Pre + TEXT("Dresser")));
+	AddLoot(P(5.5f, 0.28f, -0.7f), TEXT("dresser drawer"), {TEXT("water_bottle")}, {bHome ? 1 : 0}, FVector(40.f, 30.f, 30.f));
+
+	SpawnBox(P(5.55f, 0.9f, 2.15f), FVector(0.55f, 0.12f, 0.4f), Ceramic, *(Pre + TEXT("BathSink")));
+	SpawnBox(P(5.55f, 0.4f, 2.15f), FVector(0.5f, 0.7f, 0.35f), FLinearColor(0.55f, 0.55f, 0.58f), *(Pre + TEXT("SinkPed")));
+	SpawnMesh(CylinderMesh, P(5.55f, 1.12f, 2.0f), FVector(0.07f, 0.2f, 0.07f), Teal, *(Pre + TEXT("BathFaucet")), false);
+	AddWater(P(5.55f, 0.9f, 2.15f), TEXT("Bathroom sink"), EFEWaterKind::Sink);
+
+	SpawnMesh(Soft, P(6.15f, 0.28f, 0.95f), FVector(1.55f, 0.5f, 0.78f), Ceramic, *(Pre + TEXT("Tub")));
+	SpawnBox(P(6.15f, 0.42f, 0.95f), FVector(1.35f, 0.12f, 0.6f), FLinearColor(0.45f, 0.62f, 0.72f), *(Pre + TEXT("TubWater")), false);
+	AddWater(P(6.15f, 0.35f, 0.95f), TEXT("Bathtub"), EFEWaterKind::Tub);
+
+	SpawnMesh(Soft, P(4.7f, 0.22f, 1.7f), FVector(0.4f, 0.42f, 0.5f), Ceramic, *(Pre + TEXT("ToiletBowl")));
+	SpawnBox(P(4.7f, 0.55f, 2.0f), FVector(0.35f, 0.4f, 0.18f), Ceramic, *(Pre + TEXT("ToiletTank")));
+	AddWater(P(4.7f, 0.4f, 1.7f), TEXT("Toilet"), EFEWaterKind::Toilet);
+
+	SpawnBox(P(5.15f, 1.1f, 2.35f), FVector(0.35f, 0.08f, 0.2f), Cream, *(Pre + TEXT("TowelFold")), false);
+	SpawnBox(P(4.55f, 0.9f, 2.35f), FVector(0.08f, 0.55f, 0.25f), FLinearColor(0.85f, 0.82f, 0.75f), *(Pre + TEXT("TowelHang")), false);
+	SpawnBox(P(6.9f, 0.55f, 2.55f), FVector(0.15f, 1.1f, 0.15f), FLinearColor(0.25f, 0.42f, 0.40f), *(Pre + TEXT("MoldCorner")), false);
 }
 
 void AFELevelBuilder::SlideGlass(AStaticMeshActor* Glass, float OpenGodotZ)

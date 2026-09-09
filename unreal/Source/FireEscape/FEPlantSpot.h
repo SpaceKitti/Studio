@@ -42,6 +42,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	FName SeedId = TEXT("tomato_seed");
 
+	UPROPERTY(EditAnywhere)
 	TArray<FName> AcceptSeedIds;
 
 	bool bWatered = false;

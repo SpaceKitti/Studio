@@ -1,6 +1,7 @@
 #include "FELootContainer.h"
 #include "FEGameSubsystem.h"
 #include "Components/BoxComponent.h"
+#include "Components/StaticMeshComponent.h"
 
 AFELootContainer::AFELootContainer()
 {
@@ -8,6 +9,9 @@ AFELootContainer::AFELootContainer()
 	{
 		Collision->SetBoxExtent(FVector(70.f, 70.f, 60.f));
 	}
+	DoorPanel = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DoorPanel"));
+	DoorPanel->SetupAttachment(Collision);
+	DoorPanel->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void AFELootContainer::BeginPlay()
@@ -47,6 +51,14 @@ FString AFELootContainer::Interact(APawn* Actor)
 	if (Game->IsHandsOccupied())
 	{
 		return TEXT("Hands occupied — can't search.");
+	}
+	if (!bDoorOpen)
+	{
+		bDoorOpen = true;
+		if (DoorPanel)
+		{
+			DoorPanel->SetRelativeRotation(FRotator(0.f, -75.f, 0.f));
+		}
 	}
 	if (Remaining.Num() == 0)
 	{
