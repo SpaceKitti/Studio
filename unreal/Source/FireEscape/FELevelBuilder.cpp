@@ -10,8 +10,10 @@
 #include "Engine/PointLight.h"
 #include "Engine/DirectionalLight.h"
 #include "Engine/SkyLight.h"
+#include "Components/SkyLightComponent.h"
 #include "Engine/ExponentialHeightFog.h"
 #include "Engine/PostProcessVolume.h"
+#include "Components/SkyAtmosphereComponent.h"
 #include "GameFramework/PlayerStart.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/PointLightComponent.h"
@@ -21,6 +23,7 @@
 #include "Components/BoxComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "EngineUtils.h"
+#include "Kismet/GameplayStatics.h"
 
 namespace
 {
@@ -60,6 +63,28 @@ void AFELevelBuilder::BeginPlay()
 	{
 		BuildNow();
 	}
+}
+
+void AFELevelBuilder::ForceRebuild()
+{
+	TArray<AActor*> Kill;
+	for (TActorIterator<AActor> It(GetWorld()); It; ++It)
+	{
+		if (*It == this)
+		{
+			continue;
+		}
+		if (It->ActorHasTag(FName(TEXT("FE_M0"))))
+		{
+			Kill.Add(*It);
+		}
+	}
+	for (AActor* Actor : Kill)
+	{
+		Actor->Destroy();
+	}
+	bBuilt = false;
+	BuildNow();
 }
 
 void AFELevelBuilder::BuildNow()
@@ -114,8 +139,15 @@ void AFELevelBuilder::BuildNow()
 
 	FActorSpawnParameters Sp;
 	Sp.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	PlayerStartActor = GetWorld()->SpawnActor<APlayerStart>(GPos(2.1f, 0.92f, 0.f), FRotator(0.f, 0.f, 0.f), Sp);
+	PlayerStartActor = GetWorld()->SpawnActor<APlayerStart>(FVector(300.f, 0.f, 92.f), FRotator(0.f, 0.f, 0.f), Sp);
 	KeepLoaded(PlayerStartActor);
+	if (ASkyLight* Sky = Cast<ASkyLight>(UGameplayStatics::GetActorOfClass(GetWorld(), ASkyLight::StaticClass())))
+	{
+		if (USkyLightComponent* C = Sky->GetLightComponent())
+		{
+			C->RecaptureSky();
+		}
+	}
 	UE_LOG(LogTemp, Log, TEXT("FELevelBuilder: M0 balconies built."));
 }
 
@@ -162,6 +194,7 @@ AStaticMeshActor* AFELevelBuilder::SpawnBox(const FVector& GodotPos, const FVect
 		Mesh->SetMaterial(0, MID);
 	}
 	Mesh->SetCollisionEnabled(bCollision ? ECollisionEnabled::QueryAndPhysics : ECollisionEnabled::NoCollision);
+	Mesh->SetCastShadow(bCollision);
 	if (bCollision)
 	{
 		Mesh->SetCollisionObjectType(ECC_WorldStatic);
@@ -204,41 +237,63 @@ void AFELevelBuilder::BuildEnvironment()
 	Sp.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	UWorld* World = GetWorld();
 
-	ADirectionalLight* Sun = World->SpawnActor<ADirectionalLight>(FVector::ZeroVector, FRotator(-28.f, 55.f, 10.f), Sp);
+	ASkyAtmosphere* Atmo = World->SpawnActor<ASkyAtmosphere>(FVector::ZeroVector, FRotator::ZeroRotator, Sp);
+	KeepLoaded(Atmo);
+
+	if (UStaticMesh* SkyMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/EngineSky/SM_SkySphere.SM_SkySphere")))
+	{
+		AStaticMeshActor* SkySphere = World->SpawnActor<AStaticMeshActor>(FVector::ZeroVector, FRotator::ZeroRotator, Sp);
+		if (SkySphere)
+		{
+			UStaticMeshComponent* Mesh = SkySphere->GetStaticMeshComponent();
+			Mesh->SetMobility(EComponentMobility::Movable);
+			Mesh->SetStaticMesh(SkyMesh);
+			Mesh->SetWorldScale3D(FVector(400.f));
+			Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			Mesh->SetCastShadow(false);
+			KeepLoaded(SkySphere);
+#if WITH_EDITOR
+			SkySphere->SetActorLabel(TEXT("SkySphere"));
+#endif
+		}
+	}
+
+	ADirectionalLight* Sun = World->SpawnActor<ADirectionalLight>(FVector::ZeroVector, FRotator(-35.f, 40.f, 0.f), Sp);
 	KeepLoaded(Sun);
 	if (Sun)
 	{
 		if (UDirectionalLightComponent* C = Cast<UDirectionalLightComponent>(Sun->GetLightComponent()))
 		{
 			C->SetLightColor(FEPalette::SickAmber);
-			C->SetIntensity(12.f);
+			C->SetIntensity(8.f);
 			C->SetCastShadows(true);
 			C->SetAtmosphereSunLight(true);
 			C->SetDynamicShadowCascades(3);
+			C->SetMobility(EComponentMobility::Movable);
 		}
 	}
 
-	ASkyLight* Sky = World->SpawnActor<ASkyLight>(FVector(400.f, 0.f, 400.f), FRotator::ZeroRotator, Sp);
+	ASkyLight* Sky = World->SpawnActor<ASkyLight>(FVector(300.f, 0.f, 400.f), FRotator::ZeroRotator, Sp);
 	KeepLoaded(Sky);
 	if (Sky && Sky->GetLightComponent())
 	{
 		USkyLightComponent* C = Sky->GetLightComponent();
-		C->SetIntensity(0.55f);
-		C->SetLightColor(FLinearColor(0.55f, 0.35f, 0.45f));
-		C->bRealTimeCapture = true;
 		C->SetMobility(EComponentMobility::Movable);
+		C->SetIntensity(2.5f);
+		C->SetLightColor(FLinearColor(1.0f, 0.72f, 0.55f));
+		C->bRealTimeCapture = true;
+		C->SetRealTimeCapture(true);
 	}
 
-	AExponentialHeightFog* Fog = World->SpawnActor<AExponentialHeightFog>(FVector(400.f, -800.f, -200.f), FRotator::ZeroRotator, Sp);
+	AExponentialHeightFog* Fog = World->SpawnActor<AExponentialHeightFog>(FVector(400.f, -800.f, 0.f), FRotator::ZeroRotator, Sp);
 	KeepLoaded(Fog);
 	if (Fog && Fog->GetComponent())
 	{
 		UExponentialHeightFogComponent* C = Fog->GetComponent();
-		C->SetFogDensity(0.035f);
-		C->SetFogHeightFalloff(0.12f);
-		C->SetFogInscatteringColor(FLinearColor(0.18f, 0.10f, 0.22f));
-		C->SetVolumetricFog(true);
-		C->SetVolumetricFogScatteringDistribution(0.4f);
+		C->SetFogDensity(0.008f);
+		C->SetFogHeightFalloff(0.2f);
+		C->SetFogInscatteringColor(FLinearColor(0.55f, 0.32f, 0.28f));
+		C->SetVolumetricFog(false);
 	}
 
 	APostProcessVolume* PPV = World->SpawnActor<APostProcessVolume>(FVector::ZeroVector, FRotator::ZeroRotator, Sp);
@@ -247,33 +302,28 @@ void AFELevelBuilder::BuildEnvironment()
 	{
 		PPV->bUnbound = true;
 		FPostProcessSettings& S = PPV->Settings;
-		S.bOverride_BloomMethod = true;
 		S.bOverride_BloomIntensity = true;
-		S.BloomIntensity = 0.55f;
+		S.BloomIntensity = 0.45f;
 		S.bOverride_AmbientOcclusionIntensity = true;
-		S.AmbientOcclusionIntensity = 0.75f;
-		S.bOverride_AmbientOcclusionRadius = true;
-		S.AmbientOcclusionRadius = 48.f;
+		S.AmbientOcclusionIntensity = 0.45f;
 		S.bOverride_AutoExposureMethod = true;
-		S.AutoExposureMethod = EAutoExposureMethod::AEM_Manual;
+		S.AutoExposureMethod = EAutoExposureMethod::AEM_Histogram;
+		S.bOverride_AutoExposureMinBrightness = true;
+		S.AutoExposureMinBrightness = 0.15f;
+		S.bOverride_AutoExposureMaxBrightness = true;
+		S.AutoExposureMaxBrightness = 2.0f;
 		S.bOverride_AutoExposureBias = true;
-		S.AutoExposureBias = 0.15f;
-		S.bOverride_SceneFringeIntensity = false;
+		S.AutoExposureBias = 1.25f;
 		S.bOverride_ColorSaturation = true;
 		S.ColorSaturation = FVector4(1.05f, 0.95f, 1.08f, 1.f);
-		S.bOverride_ColorContrast = true;
-		S.ColorContrast = FVector4(1.08f, 1.05f, 1.10f, 1.f);
-		S.bOverride_ColorGamma = true;
-		S.ColorGamma = FVector4(1.02f, 0.96f, 1.05f, 1.f);
 		S.bOverride_VignetteIntensity = true;
-		S.VignetteIntensity = 0.35f;
-		S.bOverride_FilmGrainIntensity = true;
-		S.FilmGrainIntensity = 0.12f;
+		S.VignetteIntensity = 0.25f;
 	}
 
+	SpawnPointLight(FVector(2.5f, 3.2f, 0.0f), FEPalette::SickAmber, 25000.f, 1600.f);
 	SpawnPointLight(FVector(5.0f, 2.2f, -4.5f), FEPalette::CyanShock, 18000.f, 1400.f);
 	SpawnPointLight(FVector(10.0f, 1.8f, 4.0f), FEPalette::HotMagenta, 12000.f, 1000.f);
-	SpawnPointLight(FVector(2.1f, 1.6f, 0.0f), FEPalette::SodiumDusk, 6000.f, 700.f);
+	SpawnPointLight(FVector(3.0f, 1.8f, 0.0f), FEPalette::SodiumDusk, 12000.f, 900.f);
 }
 
 void AFELevelBuilder::BuildCityBackdrop()
@@ -318,14 +368,14 @@ void AFELevelBuilder::BuildBuildingMass()
 	const FLinearColor Asphalt = FEPalette::WetAsphalt;
 	const FLinearColor Stucco = FEPalette::Stucco;
 
-	// Home building face (blocked interior — black volume, not a room).
-	SpawnBox(FVector(-1.6f, 1.4f, 0.0f), FVector(3.0f, 4.6f, 7.2f), Asphalt, TEXT("HomeMass"));
-	SpawnBox(FVector(-1.6f, 3.6f, 0.0f), FVector(3.2f, 0.3f, 7.4f), Stucco, TEXT("HomeCornice"), true, 0.7f);
-	SpawnBox(FVector(-0.2f, 1.4f, -3.5f), FVector(0.3f, 3.2f, 0.4f), Stucco, TEXT("HomePilasterS"));
-	SpawnBox(FVector(-0.2f, 1.4f, 3.5f), FVector(0.3f, 3.2f, 0.4f), Stucco, TEXT("HomePilasterN"));
+	// Home building face sits behind the glass (negative X). Must not overlap the balcony slab.
+	SpawnBox(FVector(-2.4f, 1.4f, 0.0f), FVector(2.2f, 4.6f, 7.2f), Asphalt, TEXT("HomeMass"));
+	SpawnBox(FVector(-2.4f, 3.6f, 0.0f), FVector(2.4f, 0.3f, 7.4f), Stucco, TEXT("HomeCornice"), true, 0.7f);
+	SpawnBox(FVector(-1.2f, 1.4f, -3.5f), FVector(0.3f, 3.2f, 0.4f), Stucco, TEXT("HomePilasterS"));
+	SpawnBox(FVector(-1.2f, 1.4f, 3.5f), FVector(0.3f, 3.2f, 0.4f), Stucco, TEXT("HomePilasterN"));
 
-	// Black void just behind home glass so opening it still can't walk in.
-	SpawnBox(FVector(-0.35f, 1.15f, 0.0f), FVector(0.4f, 2.4f, 2.0f), FEPalette::NightSlate, TEXT("HomeVoid"));
+	// Plug the glass opening so M0 cannot walk into a fake interior.
+	SpawnBox(FVector(-0.55f, 1.15f, 0.0f), FVector(0.35f, 2.4f, 1.9f), FEPalette::NightSlate, TEXT("HomeVoid"));
 
 	// Neighbor building face
 	SpawnBox(FVector(13.0f, 1.4f, 0.0f), FVector(3.4f, 4.6f, 7.2f), Asphalt, TEXT("NeighborMass"));
@@ -339,9 +389,9 @@ void AFELevelBuilder::BuildBuildingMass()
 	for (int32 F = 1; F <= 2; ++F)
 	{
 		const float Y = 4.2f + static_cast<float>(F) * 3.2f;
-		SpawnBox(FVector(-1.6f, Y, 0.0f), FVector(3.0f, 3.0f, 7.2f), Asphalt, *FString::Printf(TEXT("HomeStack%d"), F), false);
+		SpawnBox(FVector(-2.4f, Y, 0.0f), FVector(2.2f, 3.0f, 7.2f), Asphalt, *FString::Printf(TEXT("HomeStack%d"), F), false);
 		SpawnBox(FVector(13.0f, Y, 0.0f), FVector(3.4f, 3.0f, 7.2f), Asphalt, *FString::Printf(TEXT("NStack%d"), F), false);
-		SpawnBox(FVector(-0.05f, Y, 1.4f), FVector(0.08f, 1.1f, 0.7f), FEPalette::SodiumDusk, *FString::Printf(TEXT("HomeWin%d"), F), false, 0.3f, true, 2.5f);
+		SpawnBox(FVector(-1.25f, Y, 1.4f), FVector(0.08f, 1.1f, 0.7f), FEPalette::SodiumDusk, *FString::Printf(TEXT("HomeWin%d"), F), false, 0.3f, true, 2.5f);
 		SpawnBox(FVector(11.2f, Y, -1.2f), FVector(0.08f, 1.1f, 0.7f), FEPalette::CyanRig, *FString::Printf(TEXT("NWin%d"), F), false, 0.3f, true, 2.5f);
 	}
 }

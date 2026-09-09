@@ -24,20 +24,21 @@ def main():
     actor_sub = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
     editor_sub = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
 
-    if unreal.EditorAssetLibrary.does_asset_exist(ASSET_PATH):
-        log("Deleting existing M0_FireEscape")
-        unreal.EditorAssetLibrary.delete_asset(ASSET_PATH)
-
-    # new_level creates the map and makes it current. Do not load_level after —
-    # that double-opens the world and fatals in -unattended.
-    try:
-        created = level_editor.new_level(ASSET_PATH, False)
-    except TypeError:
-        created = level_editor.new_level(ASSET_PATH)
-    log("new_level %s" % created)
-    if not created:
-        log("FAILED: new_level returned false")
-        return
+    world_name = str(editor_sub.get_editor_world())
+    log("current world %s" % world_name)
+    if "M0_FireEscape" not in world_name:
+        if unreal.EditorAssetLibrary.does_asset_exist(ASSET_PATH):
+            loaded = level_editor.load_level(ASSET_PATH)
+            log("load_level %s" % loaded)
+        else:
+            try:
+                created = level_editor.new_level(ASSET_PATH, False)
+            except TypeError:
+                created = level_editor.new_level(ASSET_PATH)
+            log("new_level %s" % created)
+            if not created:
+                log("FAILED: new_level returned false")
+                return
 
     world = editor_sub.get_editor_world()
     log("world %s" % world)
@@ -49,17 +50,23 @@ def main():
     except Exception as exc:
         log("set default_game_mode failed: %s" % exc)
 
-    builder = actor_sub.spawn_actor_from_class(
-        unreal.FELevelBuilder,
-        unreal.Vector(0.0, 0.0, 0.0),
-        unreal.Rotator(0.0, 0.0, 0.0),
-    )
+    builder = None
+    for actor in actor_sub.get_all_level_actors():
+        if isinstance(actor, unreal.FELevelBuilder):
+            builder = actor
+            break
+    if builder is None:
+        builder = actor_sub.spawn_actor_from_class(
+            unreal.FELevelBuilder,
+            unreal.Vector(0.0, 0.0, 0.0),
+            unreal.Rotator(0.0, 0.0, 0.0),
+        )
     log("builder %s" % builder)
     if builder is None:
         log("FAILED: could not spawn FELevelBuilder")
         return
 
-    builder.build_now()
+    builder.force_rebuild()
     try:
         log("build_now returned built=%s" % builder.get_editor_property("b_built"))
     except Exception as exc:
@@ -86,12 +93,17 @@ def main():
 
     try:
         unreal.EditorLevelLibrary.set_level_viewport_camera_info(
-            unreal.Vector(210.0, -650.0, 220.0),
-            unreal.Rotator(-12.0, 90.0, 0.0),
+            unreal.Vector(300.0, -420.0, 180.0),
+            unreal.Rotator(-8.0, 90.0, 0.0),
         )
         log("viewport camera set")
     except Exception as exc:
         log("camera failed: %s" % exc)
+    try:
+        unreal.SystemLibrary.execute_console_command(world, "HighResShot 1280x720 filename=M0_editor.png")
+        log("editor screenshot requested")
+    except Exception as exc:
+        log("screenshot failed: %s" % exc)
 
     saved = level_editor.save_current_level()
     log("save_current_level %s" % saved)

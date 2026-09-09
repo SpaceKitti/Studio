@@ -22,6 +22,9 @@ public:
 	UFUNCTION(BlueprintCallable, CallInEditor, Category = "Fire Escape")
 	void BuildNow();
 
+	UFUNCTION(BlueprintCallable, CallInEditor, Category = "Fire Escape")
+	void ForceRebuild();
+
 	bool IsBuilt() const { return bBuilt; }
 
 	void OnHomeGlassOpened(APawn* Actor);
