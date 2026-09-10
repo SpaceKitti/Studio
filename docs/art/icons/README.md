@@ -37,3 +37,24 @@ Sheets: `m0_item_icons_sheet.jpg`, `m0_salvage_solar_sheet.jpg`
 
 ## Godot
 `Item.id` → `res://assets/icons/<id>_256.png` on dark Panel Face.
+
+
+## Tools + watering (sheet 3 + cards, 2026-09-10)
+| Item id | Use |
+|---------|-----|
+| `hammer` | Break furniture → boards + nails |
+| `crowbar` | Faster salvage, pry containers |
+| `hand_saw` | Cut boards / furniture bridges |
+| `hacksaw` | Cut scrap metal for solar frame |
+| `screwdriver_set` | Metal frame + screws |
+| `soldering_kit` | Finish copper-wire builds (solar, lamp) |
+| `wire_cutters` | Salvage wire (w/ pliers) |
+| `pliers` | Salvage wire (w/ wire_cutters) |
+| `adjustable_wrench` | Later pump / rail / hardware |
+| `utility_knife` | Open cans, cut tape, harvest twine |
+| `tape_measure` | Flavor / bridge precision bonus |
+| `file` | Clean rusted parts |
+| `watering_can` | Garden watering |
+| `bucket` | Fill/carry water — **icon pending** (resend if needed) |
+
+Sheet: `m0_tools_sheet.jpg`. Tool-use doc: `docs/art/TOOL_USE.md`.
