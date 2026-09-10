@@ -22,6 +22,10 @@ struct FIREESCAPE_API FFEItem
 
 	UPROPERTY()
 	TArray<FName> Tags;
+
+	/** Soft path like /Game/Icons/tomato_seed_256.tomato_seed_256 */
+	UPROPERTY()
+	FString IconPath;
 };
 
 USTRUCT(BlueprintType)

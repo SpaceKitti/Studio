@@ -22,6 +22,7 @@ void UFEGameSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 
+	auto Icon = [](const TCHAR* Id) { return Id; };
 	RegisterItem(TEXT("herb_basil"), TEXT("Basil"), 0.2f, 5, {TEXT("herb"), TEXT("planted")});
 	RegisterItem(TEXT("herb_mint"), TEXT("Mint"), 0.2f, 5, {TEXT("herb"), TEXT("planted")});
 	RegisterItem(TEXT("potato_seed"), TEXT("Seed potato"), 0.1f, 8, {TEXT("seed"), TEXT("crop")});
@@ -32,7 +33,33 @@ void UFEGameSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	RegisterItem(TEXT("flour_sr"), TEXT("Self-raising flour"), 1.0f, 4, {TEXT("food"), TEXT("grocery")});
 	RegisterItem(TEXT("salt"), TEXT("Salt"), 0.3f, 8, {TEXT("food"), TEXT("grocery")});
 	RegisterItem(TEXT("tomato_fresh"), TEXT("Tomato"), 0.2f, 12, {TEXT("food"), TEXT("grocery"), TEXT("harvest")});
-	RegisterItem(TEXT("potato"), TEXT("Potato"), 0.25f, 12, {TEXT("food"), TEXT("harvest")});
+	RegisterItem(TEXT("potato"), TEXT("Potato"), 0.25f, 12, {TEXT("food"), TEXT("harvest")}, TEXT("potato"));
+
+	RegisterItem(TEXT("hammer"), TEXT("Hammer"), 0.8f, 1, {TEXT("tool")});
+	RegisterItem(TEXT("crowbar"), TEXT("Crowbar"), 1.5f, 1, {TEXT("tool")});
+	RegisterItem(TEXT("hand_saw"), TEXT("Hand saw"), 0.9f, 1, {TEXT("tool")});
+	RegisterItem(TEXT("hacksaw"), TEXT("Hacksaw"), 0.7f, 1, {TEXT("tool")});
+	RegisterItem(TEXT("screwdriver_set"), TEXT("Screwdriver set"), 0.6f, 1, {TEXT("tool")});
+	RegisterItem(TEXT("soldering_kit"), TEXT("Soldering kit"), 0.5f, 1, {TEXT("tool")});
+	RegisterItem(TEXT("wire_cutters"), TEXT("Wire cutters"), 0.4f, 1, {TEXT("tool")});
+	RegisterItem(TEXT("pliers"), TEXT("Pliers"), 0.4f, 1, {TEXT("tool")});
+	RegisterItem(TEXT("adjustable_wrench"), TEXT("Adjustable wrench"), 0.7f, 1, {TEXT("tool")});
+	RegisterItem(TEXT("utility_knife"), TEXT("Utility knife"), 0.2f, 1, {TEXT("tool")});
+	RegisterItem(TEXT("tape_measure"), TEXT("Tape measure"), 0.25f, 1, {TEXT("tool")});
+	RegisterItem(TEXT("file"), TEXT("File"), 0.3f, 1, {TEXT("tool")});
+
+	RegisterItem(TEXT("wooden_board"), TEXT("Wooden board"), 1.2f, 8, {TEXT("salvage"), TEXT("build")});
+	RegisterItem(TEXT("nails"), TEXT("Nails"), 0.15f, 40, {TEXT("salvage"), TEXT("build")});
+	RegisterItem(TEXT("screws"), TEXT("Screws"), 0.12f, 40, {TEXT("salvage"), TEXT("build")});
+	RegisterItem(TEXT("copper_wire"), TEXT("Copper wire"), 0.2f, 20, {TEXT("salvage"), TEXT("elec")});
+	RegisterItem(TEXT("scrap_metal"), TEXT("Scrap metal"), 0.8f, 12, {TEXT("salvage")});
+	RegisterItem(TEXT("solar_panel_shard"), TEXT("Solar panel shard"), 0.4f, 8, {TEXT("salvage"), TEXT("elec")});
+	RegisterItem(TEXT("panel_frame"), TEXT("Panel frame"), 1.0f, 4, {TEXT("salvage"), TEXT("elec")});
+	RegisterItem(TEXT("battery_cell"), TEXT("Battery cell"), 0.35f, 6, {TEXT("salvage"), TEXT("elec")});
+	RegisterItem(TEXT("duct_tape"), TEXT("Duct tape"), 0.2f, 8, {TEXT("salvage")});
+	RegisterItem(TEXT("electrical_tape"), TEXT("Electrical tape"), 0.1f, 8, {TEXT("salvage"), TEXT("elec")});
+	RegisterItem(TEXT("glass_shard"), TEXT("Glass shard"), 0.15f, 16, {TEXT("salvage")});
+	RegisterItem(TEXT("salvaged_pcb"), TEXT("Salvaged PCB"), 0.25f, 6, {TEXT("salvage"), TEXT("elec")});
 
 	FFERecipe Solar;
 	Solar.Id = TEXT("solar_rig");
@@ -44,7 +71,7 @@ void UFEGameSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	Recipes.Add(Solar);
 }
 
-void UFEGameSubsystem::RegisterItem(const TCHAR* Id, const TCHAR* Display, float Kg, int32 Stack, std::initializer_list<const TCHAR*> InTags)
+void UFEGameSubsystem::RegisterItem(const TCHAR* Id, const TCHAR* Display, float Kg, int32 Stack, std::initializer_list<const TCHAR*> InTags, const TCHAR* IconId)
 {
 	FFEItem Item;
 	Item.Id = Id;
@@ -55,6 +82,8 @@ void UFEGameSubsystem::RegisterItem(const TCHAR* Id, const TCHAR* Display, float
 	{
 		Item.Tags.Add(Tag);
 	}
+	const FString IconBase = IconId ? FString(IconId) : FString(Id);
+	Item.IconPath = FString::Printf(TEXT("/Game/Icons/%s_256.%s_256"), *IconBase, *IconBase);
 	Items.Add(Item.Id, Item);
 }
 

@@ -10,6 +10,9 @@
 #include "Widgets/Layout/SBorder.h"
 #include "Widgets/Layout/SBox.h"
 #include "Widgets/Layout/SScrollBox.h"
+#include "Widgets/Images/SImage.h"
+#include "Engine/Texture2D.h"
+#include "Brushes/SlateDynamicImageBrush.h"
 
 static FSlateColor SlateFrom(const FLinearColor& C)
 {
@@ -253,51 +256,49 @@ TSharedRef<SWidget> UFEHUDWidget::MakeStackRow(FName Id, int32 Count)
 	UFEGameSubsystem* Game = UFEGameSubsystem::Get(this);
 	FString Nm = Id.ToString();
 	float UnitW = 0.f;
+	static TMap<FName, TSharedPtr<FSlateDynamicImageBrush>> BrushCache;
+	const FSlateBrush* IconBrush = FCoreStyle::Get().GetDefaultBrush();
 	if (Game)
 	{
 		if (const FFEItem* Item = Game->GetItem(Id))
 		{
 			Nm = Item->DisplayName;
 			UnitW = Item->WeightKg;
+			if (!Item->IconPath.IsEmpty())
+			{
+				if (TSharedPtr<FSlateDynamicImageBrush>* Found = BrushCache.Find(Id))
+				{
+					if (Found->IsValid()) { IconBrush = Found->Get(); }
+				}
+				else if (UTexture2D* Tex = LoadObject<UTexture2D>(nullptr, *Item->IconPath))
+				{
+					TSharedPtr<FSlateDynamicImageBrush> B = MakeShareable(new FSlateDynamicImageBrush(Tex, FVector2D(48.f, 48.f), FName(*Item->IconPath)));
+					BrushCache.Add(Id, B);
+					IconBrush = B.Get();
+				}
+			}
 		}
 	}
-
 	const FName RowId = Id;
 	return SNew(SHorizontalBox)
+		+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center).Padding(0, 0, 8, 0)
+		[ SNew(SBox).WidthOverride(48.f).HeightOverride(48.f) [ SNew(SImage).Image(IconBrush) ] ]
 		+ SHorizontalBox::Slot().FillWidth(1.f).VAlign(VAlign_Center)
 		[
 			SNew(STextBlock)
-			.Text(FText::FromString(FString::Printf(TEXT("%s\nx%d  ·  %.2f kg"), *Nm, Count, UnitW * Count)))
+			.Text(FText::FromString(FString::Printf(TEXT("%s\nx%d  -  %.2f kg"), *Nm, Count, UnitW * Count)))
 			.Font(FCoreStyle::GetDefaultFontStyle("Regular", 13))
 			.ColorAndOpacity(SlateFrom(FEPalette::TextPrimary))
 		]
 		+ SHorizontalBox::Slot().AutoWidth().Padding(6, 0).VAlign(VAlign_Center)
 		[
-			SNew(SButton)
-			.Text(FText::FromString(TEXT("Half")))
-			.IsEnabled(Count >= 2)
-			.OnClicked_Lambda([this, RowId]()
-			{
-				if (UFEGameSubsystem* G = UFEGameSubsystem::Get(this))
-				{
-					Toast(G->HalfToHands(RowId));
-				}
-				return FReply::Handled();
-			})
+			SNew(SButton).Text(FText::FromString(TEXT("Half"))).IsEnabled(Count >= 2)
+			.OnClicked_Lambda([this, RowId]() { if (UFEGameSubsystem* G = UFEGameSubsystem::Get(this)) { Toast(G->HalfToHands(RowId)); } return FReply::Handled(); })
 		]
 		+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center)
 		[
-			SNew(SButton)
-			.Text(FText::FromString(TEXT("Take 1")))
-			.IsEnabled(Count >= 1)
-			.OnClicked_Lambda([this, RowId]()
-			{
-				if (UFEGameSubsystem* G = UFEGameSubsystem::Get(this))
-				{
-					Toast(G->TakeToHands(RowId, 1));
-				}
-				return FReply::Handled();
-			})
+			SNew(SButton).Text(FText::FromString(TEXT("Take 1"))).IsEnabled(Count >= 1)
+			.OnClicked_Lambda([this, RowId]() { if (UFEGameSubsystem* G = UFEGameSubsystem::Get(this)) { Toast(G->TakeToHands(RowId, 1)); } return FReply::Handled(); })
 		];
 }
 

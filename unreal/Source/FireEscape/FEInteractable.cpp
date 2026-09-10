@@ -3,6 +3,8 @@
 #include "FELevelBuilder.h"
 #include "FEPlayerController.h"
 #include "Components/BoxComponent.h"
+#include "Engine/StaticMeshActor.h"
+#include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 AFEInteractable::AFEInteractable()
@@ -41,6 +43,10 @@ FString AFEInteractable::GetPrompt() const
 			? TEXT("[E] Walk into neighbor apartment")
 			: PromptText;
 	}
+	if (Kind == EFEInteractKind::HingedDoor)
+	{
+		return bDoorOpen ? TEXT("[E] Close door") : PromptText;
+	}
 	return PromptText;
 }
 
@@ -65,6 +71,8 @@ FString AFEInteractable::Interact(APawn* Actor)
 		return TEXT("Scrawled note: 'Fed the stray. Bowl's empty. Gone for parts — back never.'");
 	case EFEInteractKind::Herbs:
 		return TEXT("Basil and mint pots. Alive. Already rooted — leave them.");
+	case EFEInteractKind::HingedDoor:
+		return ToggleHingedDoor();
 	default:
 		return TEXT("Interacted.");
 	}
@@ -133,4 +141,32 @@ FString AFEInteractable::UseDesk()
 		}
 	}
 	return TEXT("Outdoor engineering table. Recipes listed — craft locked until later.");
+}
+
+FString AFEInteractable::ToggleHingedDoor()
+{
+	if (!LinkedDoor)
+	{
+		return TEXT("Door jammed.");
+	}
+	FRotator R = LinkedDoor->GetActorRotation();
+	if (!bDoorOpen)
+	{
+		R.Yaw += DoorOpenYawDelta;
+		bDoorOpen = true;
+		LinkedDoor->SetActorRotation(R);
+		if (UStaticMeshComponent* Mesh = LinkedDoor->GetStaticMeshComponent())
+		{
+			Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		}
+		return TEXT("Door swings open.");
+	}
+	R.Yaw -= DoorOpenYawDelta;
+	bDoorOpen = false;
+	LinkedDoor->SetActorRotation(R);
+	if (UStaticMeshComponent* Mesh = LinkedDoor->GetStaticMeshComponent())
+	{
+		Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	}
+	return TEXT("Door closed.");
 }

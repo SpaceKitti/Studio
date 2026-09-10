@@ -13,6 +13,37 @@ def log(msg):
         handle.write(str(msg) + "\n")
 
 
+
+def import_folder_textures(src_dir, dest_path, exts):
+    import_tasks = []
+    if not os.path.isdir(src_dir):
+        log("skip import missing %s" % src_dir)
+        return
+    asset_tools = unreal.AssetToolsHelpers.get_asset_tools()
+    for name in os.listdir(src_dir):
+        low = name.lower()
+        if not any(low.endswith(e) for e in exts):
+            continue
+        stem = os.path.splitext(name)[0]
+        asset_name_path = dest_path + "/" + stem
+        if unreal.EditorAssetLibrary.does_asset_exist(asset_name_path):
+            log("exists %s" % asset_name_path)
+            continue
+        task = unreal.AssetImportTask()
+        task.filename = os.path.join(src_dir, name)
+        task.destination_path = dest_path
+        task.destination_name = stem
+        task.replace_existing = True
+        task.automated = True
+        task.save = True
+        import_tasks.append(task)
+    if import_tasks:
+        asset_tools.import_asset_tasks(import_tasks)
+        log("imported %d into %s" % (len(import_tasks), dest_path))
+    else:
+        log("nothing to import for %s" % dest_path)
+
+
 def main():
     os.makedirs(os.path.dirname(LOG), exist_ok=True)
     with open(LOG, "w", encoding="utf-8") as handle:
@@ -54,6 +85,8 @@ def main():
         log("created M_Glass")
 
     make_glass()
+    import_folder_textures(r"C:\Users\Akitt\Games\Studio\unreal\Content\Icons", "/Game/Icons", [".png"])
+    import_folder_textures(r"C:\Users\Akitt\Games\Studio\unreal\Content\Art\Posters", "/Game/Art/Posters", [".jpg", ".png"])
     level_editor = unreal.get_editor_subsystem(unreal.LevelEditorSubsystem)
     actor_sub = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
     editor_sub = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
@@ -127,8 +160,8 @@ def main():
 
     try:
         unreal.EditorLevelLibrary.set_level_viewport_camera_info(
-            unreal.Vector(180.0, 40.0, 150.0),
-            unreal.Rotator(-6.0, 180.0, 0.0),
+            unreal.Vector(0.0, 1100.0, 280.0),
+            unreal.Rotator(-12.0, -90.0, 0.0),
         )
         log("viewport camera set")
     except Exception as exc:

@@ -68,7 +68,7 @@ public:
 	FFEToast OnToast;
 
 private:
-	void RegisterItem(const TCHAR* Id, const TCHAR* Display, float Kg, int32 Stack, std::initializer_list<const TCHAR*> InTags);
+	void RegisterItem(const TCHAR* Id, const TCHAR* Display, float Kg, int32 Stack, std::initializer_list<const TCHAR*> InTags, const TCHAR* IconId = nullptr);
 	FString CheckLabel(bool bOk, const FString& Label) const;
 
 	UPROPERTY()

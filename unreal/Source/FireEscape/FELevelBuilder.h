@@ -12,6 +12,8 @@ class APointLight;
 class UMaterialInterface;
 class UStaticMesh;
 class AFELootContainer;
+class AFEInteractable;
+class UTexture2D;
 
 UCLASS()
 class FIREESCAPE_API AFELevelBuilder : public AActor
@@ -42,11 +44,12 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-	AStaticMeshActor* SpawnBox(const FVector& GodotPos, const FVector& GodotSize, const FLinearColor& Color, const FName& Name, bool bCollision = true, float Roughness = 0.85f, bool bEmissive = false, float EmissiveStrength = 0.f);
-	AStaticMeshActor* SpawnMesh(UStaticMesh* Mesh, const FVector& GodotPos, const FVector& GodotSize, const FLinearColor& Color, const FName& Name, bool bCollision = true, bool bGlass = false);
+	AStaticMeshActor* SpawnBox(const FVector& GodotPos, const FVector& GodotSize, const FLinearColor& Color, const FName& Name, bool bCollision = true, float Roughness = 0.85f, bool bEmissive = false, float EmissiveStrength = 0.f, UMaterialInterface* OverrideMat = nullptr);
+	AStaticMeshActor* SpawnMesh(UStaticMesh* Mesh, const FVector& GodotPos, const FVector& GodotSize, const FLinearColor& Color, const FName& Name, bool bCollision = true, bool bGlass = false, UMaterialInterface* OverrideMat = nullptr);
 	APointLight* SpawnPointLight(const FVector& GodotPos, const FLinearColor& Color, float Intensity, float RadiusCm);
 	UMaterialInstanceDynamic* MakeMat(const FLinearColor& Color, bool bEmissive, float EmissiveStrength);
 	void ApplyGlass(AStaticMeshActor* Actor);
+	void ApplyContentMat(AStaticMeshActor* Actor, UMaterialInterface* Mat);
 
 	void BuildEnvironment();
 	void BuildCityBackdrop();
@@ -55,38 +58,44 @@ private:
 	void BuildFireEscape();
 	void BuildGapMarkers();
 	void BuildBuildingMass();
-	void BuildApartment(float OriginX, int32 Facing, bool bHome);
-	void SlideGlass(AStaticMeshActor* Glass, float OpenGodotZ);
+	void BuildApartment(int32 SideSign, bool bHome);
+	void BuildPartyWall();
+	void SlideGlass(AStaticMeshActor* Glass, float OpenGodotX);
+	AFEInteractable* AddHingedDoor(const FVector& GodotPos, const FVector& LeafSize, float YawDeg, float OpenDelta, const FString& Prompt, const FName& Name, UMaterialInterface* WoodMat);
+	void HangPoster(const FVector& GodotPos, const FVector& Size, const TCHAR* TexturePath, const FName& Name);
 
 	AFELootContainer* AddLoot(const FVector& GodotPos, const FString& Name, const TArray<FName>& Ids, const TArray<int32>& Counts, const FVector& Extent);
 	AFEWaterFixture* AddWater(const FVector& GodotPos, const FString& Name, EFEWaterKind Kind);
-
 	AFEEmber* SpawnEmber(const FVector& GodotPos);
 
 	UPROPERTY()
 	TObjectPtr<UStaticMesh> CubeMesh;
-
 	UPROPERTY()
 	TObjectPtr<UStaticMesh> SphereMesh;
-
 	UPROPERTY()
 	TObjectPtr<UStaticMesh> CylinderMesh;
-
 	UPROPERTY()
 	TObjectPtr<UStaticMesh> ChamferMesh;
-
+	UPROPERTY()
+	TObjectPtr<UStaticMesh> PlanterMesh;
 	UPROPERTY()
 	TObjectPtr<UMaterialInterface> ShapeMat;
-
 	UPROPERTY()
 	TObjectPtr<UMaterialInterface> GlassMat;
-
+	UPROPERTY()
+	TObjectPtr<UMaterialInterface> MatWallpaper;
+	UPROPERTY()
+	TObjectPtr<UMaterialInterface> MatWood;
+	UPROPERTY()
+	TObjectPtr<UMaterialInterface> MatBrick;
+	UPROPERTY()
+	TObjectPtr<UMaterialInterface> MatConcrete;
+	UPROPERTY()
+	TObjectPtr<UMaterialInterface> MatRust;
 	UPROPERTY()
 	TObjectPtr<AStaticMeshActor> HomeGlass;
-
 	UPROPERTY()
 	TObjectPtr<AStaticMeshActor> NeighborGlass;
-
 	UPROPERTY()
 	bool bBuilt = false;
 };

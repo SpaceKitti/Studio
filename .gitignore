@@ -114,3 +114,5 @@ unreal/*.code-workspace
 unreal/Content/Developers/
 unreal/Content/Collections/
 
+# Fab source textures can exceed GitHub 100MB; keep mesh/materials tracked, textures local-only
+unreal/Content/Fab/**/Textures/
