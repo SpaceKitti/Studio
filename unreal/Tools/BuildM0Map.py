@@ -158,19 +158,44 @@ def main():
     log("TAGGED_COUNT %d" % n_tag)
     log("NAMES %s" % ",".join(names[:60]))
 
-    try:
-        unreal.EditorLevelLibrary.set_level_viewport_camera_info(
-            unreal.Vector(0.0, 1100.0, 280.0),
-            unreal.Rotator(-12.0, -90.0, 0.0),
-        )
-        log("viewport camera set")
-    except Exception as exc:
-        log("camera failed: %s" % exc)
-    try:
-        unreal.SystemLibrary.execute_console_command(world, "HighResShot 1280x720 filename=M0_editor.png")
-        log("editor screenshot requested")
-    except Exception as exc:
-        log("screenshot failed: %s" % exc)
+
+    import time
+    shot_dir = r"C:\Users\Akitt\Games\Studio\unreal\Saved\Screenshots\WindowsEditor"
+    os.makedirs(shot_dir, exist_ok=True)
+    shots = [
+        (unreal.Vector(0.0, 1400.0, 420.0), unreal.Rotator(-18.0, -90.0, 0.0), "M0_overview_north"),
+        (unreal.Vector(-310.0, 200.0, 160.0), unreal.Rotator(-8.0, 0.0, 0.0), "M0_living_interior"),
+        (unreal.Vector(0.0, -700.0, 280.0), unreal.Rotator(-12.0, 90.0, 0.0), "M0_south_hallway"),
+        (unreal.Vector(-410.0, 900.0, 220.0), unreal.Rotator(-15.0, -40.0, 0.0), "M0_balconies"),
+        (unreal.Vector(-200.0, 100.0, 140.0), unreal.Rotator(-5.0, 90.0, 0.0), "M0_doors_kitchen"),
+    ]
+    for loc, rot, name in shots:
+        try:
+            unreal.EditorLevelLibrary.set_level_viewport_camera_info(loc, rot)
+            time.sleep(1.0)
+            out = os.path.join(shot_dir, name + ".png")
+            try:
+                unreal.AutomationLibrary.take_high_res_screenshot(1600, 900, out)
+                log("automation shot %s" % out)
+            except Exception as exc1:
+                log("automation failed %s: %s" % (name, exc1))
+                unreal.SystemLibrary.execute_console_command(world, "Shot")
+                log("console Shot fallback for %s" % name)
+            time.sleep(1.5)
+        except Exception as exc:
+            log("shot failed %s: %s" % (name, exc))
+
+    door_n = 0
+    hall_n = 0
+    for actor in actor_sub.get_all_level_actors():
+        label = actor.get_actor_label() if hasattr(actor, "get_actor_label") else actor.get_name()
+        low = str(label).lower()
+        if "door" in low and "frame" not in low:
+            door_n += 1
+        if "apthall" in low or "hallfloor" in low or "doorhall" in low:
+            hall_n += 1
+    log("DOOR_LABEL_COUNT %d" % door_n)
+    log("HALL_LABEL_COUNT %d" % hall_n)
 
     saved = level_editor.save_current_level()
     log("save_current_level %s" % saved)
@@ -182,11 +207,11 @@ def main():
     else:
         log("DONE")
 
+    time.sleep(2.0)
     try:
         unreal.SystemLibrary.execute_console_command(world, "QUIT_EDITOR")
     except Exception as exc:
         log("quit failed: %s" % exc)
-
 
 if __name__ == "__main__":
     try:

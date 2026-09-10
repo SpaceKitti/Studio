@@ -57,6 +57,7 @@ private:
 	void BuildNeighborBalcony();
 	void BuildFireEscape();
 	void BuildGapMarkers();
+	void BuildSouthHallway();
 	void BuildBuildingMass();
 	void BuildApartment(int32 SideSign, bool bHome);
 	void BuildPartyWall();
