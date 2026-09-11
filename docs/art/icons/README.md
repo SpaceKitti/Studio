@@ -58,3 +58,11 @@ Sheets: `m0_item_icons_sheet.jpg`, `m0_salvage_solar_sheet.jpg`
 | `bucket` | Fill/carry water — **icon pending** (resend if needed) |
 
 Sheet: `m0_tools_sheet.jpg`. Tool-use doc: `docs/art/TOOL_USE.md`.
+
+## Herbs (2026-09-11)
+| id | notes |
+|----|-------|
+| `herb_basil` / `herb_basil_seed` | terracotta pot art |
+| `herb_oregano` / `herb_oregano_seed` | |
+| `herb_mint` / `herb_mint_seed` | |
+Balcony: raised beds for potato/tomato; herbs can stay terracotta pots.
