@@ -66,3 +66,34 @@ Sheet: `m0_tools_sheet.jpg`. Tool-use doc: `docs/art/TOOL_USE.md`.
 | `herb_oregano` / `herb_oregano_seed` | |
 | `herb_mint` / `herb_mint_seed` | |
 Balcony: raised beds for potato/tomato; herbs can stay terracotta pots.
+
+
+## Weapons (sheet 4, 2026-09-19)
+Clean Akitti sheet (not chat screenshots). Neon-frame cropped → 256².
+
+| Item id | File |
+|---------|------|
+| `machete` | `machete_256.png` |
+| `spear` | `spear_256.png` |
+| `baseball_bat` | `baseball_bat_256.png` |
+| `pipe` | `pipe_256.png` |
+| `kitchen_knife` | `kitchen_knife_256.png` |
+| `fire_axe` | `fire_axe_256.png` |
+| `shiv` | `shiv_256.png` |
+| `bow` | `bow_256.png` |
+
+Sheet: `m0_weapons_sheet.jpg`
+
+## Materials / craft (sheet 5, 2026-09-19)
+| Item id | File | Notes |
+|---------|------|-------|
+| `flint` | `flint_256.png` | |
+| `string` | `string_256.png` | |
+| `twine` | `twine_256.png` | |
+| `logs` | `logs_256.png` | |
+| `sticks` | `sticks_256.png` | |
+| `scrap_cloth` | `scrap_cloth_256.png` | |
+
+Sheet: `m0_materials_sheet.jpg`
+
+**Sheet also had `duct_tape` + `nails` — ignored.** Those icons already exist from salvage sheet 2 (`duct_tape_256.png`, `nails_256.png`); duplicates not overwritten.
