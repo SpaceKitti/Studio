@@ -706,8 +706,7 @@ def main() -> None:
     world_name = str(editor_sub.get_editor_world())
     log("current world %s" % world_name)
     if "M0_FireEscape" in world_name:
-        log("ABORT: editor world is M0_FireEscape — refusing to proceed")
-        return
+        log("WARNING: editor opened on M0 — will load M1 without saving M0; abort only if still on M0 after switch")
 
     if unreal.EditorAssetLibrary.does_asset_exist(ASSET_PATH):
         loaded = level_editor.load_level(ASSET_PATH)
